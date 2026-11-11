@@ -9,64 +9,74 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 
-# ==========================================
-# CONFIGURACION DE LOS CANALES
-# ==========================================
+# =========================================
+# CANALES PRIVADOS DE THINGSPEAK
+# =========================================
 
 CANALES = {
     "orientacion": (
         3575336,
         "TS_READ_ORIENTACION"
     ),
-
     "gps": (
         3575337,
         "TS_READ_GPS_SOL"
     ),
-
     "diagnostico": (
         3575338,
         "TS_READ_DIAGNOSTICO"
-    ),
+    )
 }
 
 
-# ==========================================
-# PRIVACIDAD DEL MAPA PUBLICO
-# ==========================================
+# =========================================
+# PRIVACIDAD DE LA UBICACION PUBLICA
+# =========================================
 
-# Cuadricula geografica de aproximadamente
-# 1.1 km de lado, segun la latitud.
+# RADIO CONFIGURABLE DEL CIRCULO PUBLICO
+# 300 = 300 metros
+# 500 = 500 metros
+# 1200 = 1.2 kilometros
+
+RADIO_PUBLICO_METROS = 300
+
+# La cuadricula de aproximacion se ajusta
+# automaticamente al radio escogido.
+# Su lado sera de aproximadamente 300 m.
 #
-# Solo se publica el centro de la celda.
-# NO se publica la coordenada GPS exacta.
+# La distancia maxima entre el punto GPS
+# real y el centro de la celda sera
+# aproximadamente 212 m para un radio de
+# 300 m, en la zona de Cartagena.
+#
+# Asi evitamos publicar el punto preciso
+# y mantenemos el dispositivo dentro
+# del circulo de privacidad.
 
-TAMANO_CELDA_GRADOS = 0.01
-
-# Circulo mostrado en el mapa publico.
-RADIO_PUBLICO_METROS = 1200
+LADO_CELDA_METROS = RADIO_PUBLICO_METROS
 
 
-# ==========================================
+# =========================================
 # CONSULTAR THINGSPEAK
-# ==========================================
+# =========================================
 
 def obtener_datos(nombre):
-    canal_id, secreto = CANALES[nombre]
+
+    canal_id, nombre_secreto = CANALES[nombre]
 
     clave = os.environ.get(
-        secreto, ""
+        nombre_secreto, ""
     ).strip()
 
     if not clave:
         raise RuntimeError(
-            f"Falta el secreto {secreto}"
+            f"Falta el secreto {nombre_secreto}"
         )
 
     parametros = urlencode({
         "api_key": clave,
         "minutes": 720,
-        "results": 720,
+        "results": 720
     })
 
     url = (
@@ -75,60 +85,54 @@ def obtener_datos(nombre):
         f"{parametros}"
     )
 
-    with urlopen(
-        url,
-        timeout=30
-    ) as respuesta:
-
+    with urlopen(url, timeout=30) as respuesta:
         datos = json.load(respuesta)
 
-    registros = datos.get(
-        "feeds", []
-    )
+    registros = datos.get("feeds", [])
 
     if not registros:
         raise RuntimeError(
-            "Sin datos del canal "
-            f"{canal_id}"
+            f"No hay datos del canal {canal_id}"
         )
 
     return registros
 
 
-# ==========================================
-# CONVERSIONES SEGURAS
-# ==========================================
+# =========================================
+# CONVERSION DE NUMEROS
+# =========================================
 
 def numero(valor, decimales=1):
+
     try:
         if valor is None or valor == "":
             return None
 
-        n = float(valor)
+        resultado = float(valor)
 
-        if not math.isfinite(n):
+        if not math.isfinite(resultado):
             return None
 
-        return round(n, decimales)
+        return round(resultado, decimales)
 
-    except (TypeError, ValueError):
+    except (ValueError, TypeError):
         return None
 
 
 def entero(valor):
-    n = numero(valor, 0)
 
-    return (
-        None if n is None
-        else int(n)
-    )
+    valor_numerico = numero(valor, 0)
+
+    if valor_numerico is None:
+        return None
+
+    return int(valor_numerico)
 
 
 def campo(registro, indice, decimales=1):
+
     return numero(
-        registro.get(
-            f"field{indice}"
-        ),
+        registro.get(f"field{indice}"),
         decimales
     )
 
@@ -137,27 +141,17 @@ def ultimo(registros):
     return registros[-1]
 
 
-# ==========================================
-# FECHAS DE REGISTRO PUBLICAS
-# ==========================================
+# =========================================
+# FECHAS PUBLICAS
+# =========================================
 
 def fecha_publica(fecha):
-    """
-    Agrupar marcas de tiempo cada
-    cinco minutos.
-    """
 
     instante = datetime.fromisoformat(
-        fecha.replace(
-            "Z", "+00:00"
-        )
-    ).astimezone(
-        timezone.utc
-    )
+        fecha.replace("Z", "+00:00")
+    ).astimezone(timezone.utc)
 
-    minuto = (
-        instante.minute // 5
-    ) * 5
+    minuto = (instante.minute // 5) * 5
 
     instante = instante.replace(
         minute=minuto,
@@ -170,22 +164,16 @@ def fecha_publica(fecha):
     )
 
 
-# ==========================================
-# HISTORIAL DE ORIENTACION
-# ==========================================
+# =========================================
+# HISTORIAL PUBLICO DE ORIENTACION
+# =========================================
 
 def construir_historial(registros):
-    """
-    Publica solamente los datos
-    angulares necesarios para
-    dibujar las graficas.
-
-    No incluye informacion GPS.
-    """
 
     agrupados = {}
 
     for registro in registros:
+
         fecha = fecha_publica(
             registro["created_at"]
         )
@@ -207,53 +195,69 @@ def construir_historial(registros):
 
             "el_objetivo": campo(
                 registro, 5
-            ),
+            )
         }
 
     return [
-        agrupados[t]
-        for t in sorted(agrupados)
+        agrupados[fecha]
+        for fecha in sorted(agrupados)
     ]
 
 
-# ==========================================
-# UBICACION GPS APROXIMADA
-# ==========================================
+# =========================================
+# GENERALIZACION GPS
+# =========================================
 
-def centro_celda(coordenada):
+def centro_aproximado(latitud, longitud):
     """
-    Convierte una coordenada exacta
-    en el centro de una celda geografica.
+    Convierte la ubicacion GPS en el centro
+    de una celda aproximada.
 
-    Las coordenadas precisas NO
-    se exportan.
+    La celda cambia de tamaño cuando
+    modificamos RADIO_PUBLICO_METROS.
 
-    Esta cuantizacion produce un centro
-    estable ante cambios pequeños del GPS
-    que no crucen el borde de la celda.
+    Nunca devuelve directamente la
+    coordenada original del receptor.
     """
 
-    tamano = TAMANO_CELDA_GRADOS
+    metros_por_grado = 111320.0
 
-    base = math.floor(
-        coordenada / tamano
-    ) * tamano
+    lado = float(LADO_CELDA_METROS)
 
-    centro = base + tamano / 2
+    paso_lat = lado / metros_por_grado
 
-    return round(centro, 4)
+    cos_lat = math.cos(
+        math.radians(latitud)
+    )
+
+    paso_lon = lado / (
+        metros_por_grado *
+        max(0.1, abs(cos_lat))
+    )
+
+    centro_lat = (
+        math.floor(latitud / paso_lat) + 0.5
+    ) * paso_lat
+
+    centro_lon = (
+        math.floor(longitud / paso_lon) + 0.5
+    ) * paso_lon
+
+    return {
+        "lat": round(centro_lat, 5),
+        "lon": round(centro_lon, 5),
+        "radio_m": RADIO_PUBLICO_METROS
+    }
 
 
 def ubicacion_aproximada(registros):
     """
-    Obtiene la ultima posicion GPS valida
-    y publica solo la celda aproximada.
+    Field 4 = latitud GPS
+    Field 5 = longitud GPS
+    Field 6 = GPS fix
 
-    Field 4: latitud
-    Field 5: longitud
-    Field 6: GPS fix
-
-    No entrega la posicion exacta.
+    Busca la ultima lectura valida y
+    publica solamente la zona aproximada.
     """
 
     for registro in reversed(registros):
@@ -262,30 +266,32 @@ def ubicacion_aproximada(registros):
             registro.get("field6")
         )
 
-        lat = campo(
+        latitud = campo(
             registro, 4, 7
         )
 
-        lon = campo(
+        longitud = campo(
             registro, 5, 7
         )
 
-        if (
+        coordenadas_validas = (
             fix == 1
-            and lat is not None
-            and lon is not None
-            and -90 <= lat <= 90
-            and -180 <= lon <= 180
+            and latitud is not None
+            and longitud is not None
+            and -90 <= latitud <= 90
+            and -180 <= longitud <= 180
             and not (
-                lat == 0 and lon == 0
+                latitud == 0
+                and longitud == 0
             )
-        ):
+        )
 
-            return {
-                "lat": centro_celda(lat),
-                "lon": centro_celda(lon),
-                "radio_m": RADIO_PUBLICO_METROS
-            }
+        if coordenadas_validas:
+
+            return centro_aproximado(
+                latitud,
+                longitud
+            )
 
     return {
         "lat": None,
@@ -294,9 +300,9 @@ def ubicacion_aproximada(registros):
     }
 
 
-# ==========================================
-# CONSTRUIR TELEMETRIA PUBLICA
-# ==========================================
+# =========================================
+# PREPARAR DATOS PUBLICOS
+# =========================================
 
 def main():
 
@@ -316,16 +322,13 @@ def main():
     g = ultimo(gps)
     d = ultimo(diagnostico)
 
-    # Solo se exportan los campos
-    # expresamente permitidos.
+    # Se publican solo campos autorizados.
     #
-    # Nunca se incluyen:
+    # NO se publica:
+    # - GPS preciso
+    # - API Keys
     # - Credenciales MQTT
-    # - Read API Keys
-    # - Write API Keys
-    # - Latitud GPS exacta
-    # - Longitud GPS exacta
-    # - Registros GPS originales
+    # - Registros completos privados
 
     publico = {
 
@@ -335,9 +338,7 @@ def main():
             microsecond=0
         ).isoformat(),
 
-        # ------------------------------
         # ORIENTACION
-        # ------------------------------
 
         "orientacion": {
 
@@ -346,27 +347,21 @@ def main():
             ),
 
             "az_actual": campo(o, 1),
-
             "az_objetivo": campo(o, 2),
-
             "error_az": campo(o, 3),
 
             "el_actual": campo(o, 4),
-
             "el_objetivo": campo(o, 5),
-
             "error_el": campo(o, 6),
 
             "inclinacion": campo(o, 7),
 
             "seguimiento": entero(
                 o.get("field8")
-            ),
+            )
         },
 
-        # ------------------------------
-        # GPS Y SOL
-        # ------------------------------
+        # GPS Y CALCULO SOLAR
 
         "gps": {
 
@@ -375,9 +370,7 @@ def main():
             ),
 
             "az_solar": campo(g, 1),
-
             "el_solar": campo(g, 2),
-
             "declinacion": campo(g, 3),
 
             "fix": entero(
@@ -390,15 +383,12 @@ def main():
 
             "hdop": campo(g, 8),
 
-            # Ubicacion filtrada.
             "ubicacion": ubicacion_aproximada(
                 gps
-            ),
+            )
         },
 
-        # ------------------------------
         # DIAGNOSTICO
-        # ------------------------------
 
         "diagnostico": {
 
@@ -420,25 +410,19 @@ def main():
 
             "minutos": entero(
                 d.get("field4")
-            ),
+            )
         },
 
-        # ------------------------------
-        # HISTORIAL
-        # ------------------------------
+        # HISTORIAL DE LOS EJES
 
         "historial": construir_historial(
             orientacion
         )
     }
 
-    # ==================================
-    # GUARDAR ARCHIVO PUBLICO
-    # ==================================
+    # GUARDAR SOLO LOS DATOS FILTRADOS
 
-    destino = Path(
-        "site/data.json"
-    )
+    destino = Path("site/data.json")
 
     destino.parent.mkdir(
         parents=True,
@@ -454,23 +438,19 @@ def main():
         encoding="utf-8"
     )
 
+    print("Telemetria publica preparada.")
     print(
-        "Dashboard publico actualizado."
+        "Radio de privacidad:",
+        RADIO_PUBLICO_METROS,
+        "metros"
     )
-
     print(
-        "Registros de orientacion: "
-        f"{len(publico['historial'])}"
+        "Registros historicos:",
+        len(publico["historial"])
     )
-
     print(
-        "Coordenadas originales GPS: "
-        "NO PUBLICADAS."
-    )
-
-    print(
-        "Radio publico de ubicacion: "
-        f"{RADIO_PUBLICO_METROS} metros."
+        "Coordenadas GPS exactas: "
+        "NO PUBLICADAS"
     )
 
 
