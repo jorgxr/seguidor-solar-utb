@@ -1,9 +1,11 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
 
 <title>Seguidor Solar UTB | Monitoreo Público</title>
 
@@ -16,9 +18,9 @@
 </script>
 
 <style>
-/* =====================================
+/* ====================================
    ESTILO GENERAL
-===================================== */
+==================================== */
 
 * {
   box-sizing: border-box;
@@ -28,7 +30,7 @@ body {
   margin: 0;
   background: #0b1424;
   color: #eef5ff;
-  font: 14px Arial, Helvetica, sans-serif;
+  font: 14px Arial, sans-serif;
 }
 
 main {
@@ -41,17 +43,17 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 18px;
   flex-wrap: wrap;
-  border-bottom: 1px solid #31445c;
+  gap: 18px;
   padding-bottom: 22px;
+  border-bottom: 1px solid #31445c;
 }
 
 .eyebrow {
-  font-size: 11px;
-  letter-spacing: 2px;
   color: #79d1ff;
+  font-size: 11px;
   font-weight: bold;
+  letter-spacing: 2px;
 }
 
 h1 {
@@ -70,14 +72,11 @@ h3 {
   margin: 0 0 14px;
 }
 
-p,
-.muted,
-small {
+p, small, .muted {
   color: #9fb4d0;
 }
 
-button,
-select {
+button, select {
   padding: 11px;
   border: 1px solid #38526c;
   border-radius: 8px;
@@ -94,9 +93,9 @@ button:hover {
   background: #0798d2;
 }
 
-/* =====================================
+/* ====================================
    TARJETAS
-===================================== */
+==================================== */
 
 .card {
   background: #17283e;
@@ -108,28 +107,25 @@ button:hover {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(
-    4, minmax(0, 1fr)
-  );
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
 .grid.two {
-  grid-template-columns: repeat(
-    2, minmax(0, 1fr)
-  );
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 }
 
 .grid.three {
-  grid-template-columns: repeat(
-    3, minmax(0, 1fr)
-  );
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 }
 
 .value {
+  display: block;
   font-size: 30px;
   font-weight: bold;
-  display: block;
   margin: 10px 0;
 }
 
@@ -149,9 +145,9 @@ button:hover {
   margin-top: 12px;
 }
 
-/* =====================================
-   ESTADOS
-===================================== */
+/* ====================================
+   COLORES
+==================================== */
 
 .good {
   background: #174b3a;
@@ -185,10 +181,10 @@ button:hover {
 .band {
   display: inline-block;
   padding: 8px 10px;
+  margin-top: 12px;
   border-radius: 7px;
   font-size: 12px;
   font-weight: bold;
-  margin-top: 12px;
 }
 
 .statusline {
@@ -196,13 +192,9 @@ button:hover {
   line-height: 1.6;
 }
 
-/* =====================================
+/* ====================================
    GRAFICAS
-   CORRECCION IMPORTANTE:
-   SOLO APLICAR ESTOS ESTILOS A
-   LAS GRAFICAS DEL SEGUIDOR.
-   NO A LOS SVG DEL MAPA.
-===================================== */
+==================================== */
 
 .legend {
   display: flex;
@@ -227,6 +219,8 @@ button:hover {
   background: #ffa83e;
 }
 
+/* No alterar los SVG internos de Leaflet */
+
 #graficaAz,
 #graficaEl {
   display: block;
@@ -234,13 +228,9 @@ button:hover {
   height: auto;
 }
 
-/* =====================================
-   MAPA GPS
-===================================== */
-
-.map-card {
-  overflow: hidden;
-}
+/* ====================================
+   MAPA PUBLICO
+==================================== */
 
 .map-description {
   line-height: 1.6;
@@ -276,7 +266,6 @@ button:hover {
 
 #mapHint {
   padding: 35px;
-  min-height: 170px;
   background: #102036;
   border: 1px dashed #3e5875;
   border-radius: 9px;
@@ -300,20 +289,13 @@ button:hover {
   font-size: 12px;
 }
 
-/* No modificar las dimensiones del
-   SVG interno de Leaflet. */
-
 .leaflet-container {
   font-family: Arial, sans-serif;
 }
 
-a {
-  color: #77d1ff;
-}
-
-/* =====================================
-   PIE
-===================================== */
+/* ====================================
+   PIE DE PAGINA
+==================================== */
 
 footer {
   border-top: 1px solid #31445c;
@@ -324,15 +306,15 @@ footer {
   font-size: 12px;
 }
 
-/* =====================================
-   PANTALLAS PEQUENAS
-===================================== */
+/* ====================================
+   DISPOSITIVOS MOVILES
+==================================== */
 
-@media(max-width:950px) {
+@media (max-width: 950px) {
+
   .grid {
-    grid-template-columns: repeat(
-      2, minmax(0, 1fr)
-    );
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
   .grid.three {
@@ -340,7 +322,8 @@ footer {
   }
 }
 
-@media(max-width:620px) {
+@media (max-width: 620px) {
+
   main {
     padding: 13px;
   }
@@ -359,6 +342,7 @@ footer {
   }
 }
 </style>
+
 </head>
 
 <body>
@@ -381,9 +365,7 @@ footer {
   </div>
 
   <div>
-    <label for="periodo">
-      Historial:
-    </label>
+    <label for="periodo">Historial:</label>
 
     <select id="periodo">
       <option value="20">20 minutos</option>
@@ -401,6 +383,7 @@ footer {
 <!-- CONEXION -->
 
 <div class="statusline">
+
   <strong id="conexion">
     Consultando telemetría...
   </strong>
@@ -420,6 +403,7 @@ footer {
 <h2>Estado del sistema</h2>
 
 <div class="grid three">
+
   <div class="card state">
     GPS
     <b id="gpsEstado" class="neutral">--</b>
@@ -434,6 +418,7 @@ footer {
     Datos solares
     <b id="solEstado" class="neutral">--</b>
   </div>
+
 </div>
 
 <!-- ORIENTACION -->
@@ -443,6 +428,7 @@ footer {
 <div class="grid two">
 
   <div class="card">
+
     <span class="caption">
       AZIMUT ACTUAL
     </span>
@@ -463,12 +449,11 @@ footer {
       Sin datos
     </span>
 
-    <small>
-      Umbral: 2,5°
-    </small>
+    <small>Umbral: 2,5°</small>
   </div>
 
   <div class="card">
+
     <span class="caption">
       ELEVACIÓN ACTUAL
     </span>
@@ -489,10 +474,9 @@ footer {
       Sin datos
     </span>
 
-    <small>
-      Umbral: 1,5°
-    </small>
+    <small>Umbral: 1,5°</small>
   </div>
+
 </div>
 
 <!-- GRAFICAS -->
@@ -500,22 +484,24 @@ footer {
 <h2>Historial de orientación</h2>
 
 <div class="grid two">
+
   <div class="card">
     <h3>Seguimiento de azimut</h3>
 
     <div class="legend">
       <span>
-        <i class="key blue"></i>
-        Actual
+        <i class="key blue"></i>Actual
       </span>
+
       <span>
-        <i class="key orange"></i>
-        Objetivo
+        <i class="key orange"></i>Objetivo
       </span>
     </div>
 
-    <svg id="graficaAz"
-         viewBox="0 0 640 240"></svg>
+    <svg
+      id="graficaAz"
+      viewBox="0 0 640 240">
+    </svg>
   </div>
 
   <div class="card">
@@ -523,21 +509,23 @@ footer {
 
     <div class="legend">
       <span>
-        <i class="key blue"></i>
-        Actual
+        <i class="key blue"></i>Actual
       </span>
+
       <span>
-        <i class="key orange"></i>
-        Objetivo
+        <i class="key orange"></i>Objetivo
       </span>
     </div>
 
-    <svg id="graficaEl"
-         viewBox="0 0 640 240"></svg>
+    <svg
+      id="graficaEl"
+      viewBox="0 0 640 240">
+    </svg>
   </div>
+
 </div>
 
-<!-- SOL -->
+<!-- POSICION SOLAR -->
 
 <h2>Posición solar y calidad GPS</h2>
 
@@ -597,18 +585,15 @@ footer {
 
   <p id="mapError" hidden></p>
 
-  <p class="map-explanation">
-    <strong>¿Qué representa el círculo?</strong>
-    Es una zona aproximada de 1,2 km
-    de radio alrededor del sector donde
-    opera el seguidor solar.
-    El círculo no señala una dirección
-    ni una posición GPS exacta.
+  <p class="map-explanation" id="textoRadio">
+    El círculo representa una zona aproximada
+    de operación, sin identificar la posición
+    GPS exacta del dispositivo.
   </p>
 
   <p class="map-caption">
     La ubicación GPS precisa permanece
-    en los canales privados de ThingSpeak.
+    exclusivamente en ThingSpeak privado.
   </p>
 
 </div>
@@ -633,6 +618,7 @@ footer {
     <span class="caption">
       Estado del controlador
     </span>
+
     <strong id="estado" class="value">--</strong>
   </div>
 
@@ -640,10 +626,13 @@ footer {
     <span class="caption">
       Inclinación requerida
     </span>
+
     <strong id="inclinacion" class="value">--</strong>
   </div>
 
 </div>
+
+<!-- PIE -->
 
 <footer>
   SEGUIDOR SOLAR UTB · ESP32 · GPS ·
@@ -661,9 +650,9 @@ footer {
 <script>
 "use strict";
 
-/* ======================================
-   VARIABLES GENERALES
-====================================== */
+// ====================================
+// VARIABLES GENERALES
+// ====================================
 
 const $ = id => document.getElementById(id);
 
@@ -675,11 +664,17 @@ let mapa = null;
 let circulo = null;
 let ultimaZona = "";
 
-/* ======================================
-   UTILIDADES
-====================================== */
+// Zoom fijo: permite apreciar el tamaño
+// real de los círculos de 300 y 500 metros.
+const ZOOM_INICIAL_MAPA = 15;
+
+
+// ====================================
+// UTILIDADES
+// ====================================
 
 function numero(v, dec = 1, unidad = "") {
+
   if (
     typeof v !== "number" ||
     !Number.isFinite(v)
@@ -690,12 +685,19 @@ function numero(v, dec = 1, unidad = "") {
   return v.toFixed(dec) + unidad;
 }
 
+
 function poner(id, valor) {
+
   const e = $(id);
-  if (e) e.textContent = valor;
+
+  if (e) {
+    e.textContent = valor;
+  }
 }
 
+
 function reciente(fecha) {
+
   const t = Date.parse(fecha || "");
 
   if (!Number.isFinite(t)) {
@@ -708,7 +710,9 @@ function reciente(fecha) {
          edad < 20 * 60000;
 }
 
+
 function hora(fecha) {
+
   const t = Date.parse(fecha || "");
 
   if (!Number.isFinite(t)) {
@@ -729,17 +733,22 @@ function hora(fecha) {
   ).format(new Date(t));
 }
 
-/* ======================================
-   INDICADORES
-====================================== */
+
+// ====================================
+// ESTADOS Y BANDAS MUERTAS
+// ====================================
 
 function indicador(
-  id, valor, fecha, activo, inactivo
+  id,
+  valor,
+  fecha,
+  activo,
+  inactivo
 ) {
-  const e = $(id);
-  const fresco = reciente(fecha);
 
-  if (!fresco) {
+  const e = $(id);
+
+  if (!reciente(fecha)) {
     e.className = "neutral";
     e.textContent = "SIN DATOS RECIENTES";
     return;
@@ -748,16 +757,20 @@ function indicador(
   if (valor === 1) {
     e.className = "good";
     e.textContent = activo;
+
   } else if (valor === 0) {
     e.className = "bad";
     e.textContent = inactivo;
+
   } else {
     e.className = "neutral";
     e.textContent = "SIN INFORMACIÓN";
   }
 }
 
+
 function banda(id, error, limite, fecha) {
+
   const e = $(id);
 
   if (
@@ -779,16 +792,18 @@ function banda(id, error, limite, fecha) {
     : "DENTRO DE BANDA";
 }
 
-/* ======================================
-   GRAFICAS
-====================================== */
 
-function svgNodo(svg, tipo, atributos, texto) {
+// ====================================
+// GRAFICAS SVG
+// ====================================
+
+function svgNodo(svg, tipo, attrs, texto) {
+
   const e = document.createElementNS(
     SVG_NS, tipo
   );
 
-  for (const [k, v] of Object.entries(atributos)) {
+  for (const [k, v] of Object.entries(attrs)) {
     e.setAttribute(k, v);
   }
 
@@ -799,13 +814,19 @@ function svgNodo(svg, tipo, atributos, texto) {
   svg.appendChild(e);
 }
 
-function graficar(id, historial, campo1, campo2) {
+
+function graficar(
+  id,
+  historial,
+  campo1,
+  campo2
+) {
+
   const svg = $(id);
   svg.replaceChildren();
 
-  const minutos = Number(
-    $("periodo").value
-  );
+  const minutos =
+    Number($("periodo").value);
 
   const desde =
     Date.now() - minutos * 60000;
@@ -816,20 +837,23 @@ function graficar(id, historial, campo1, campo2) {
   ];
 
   const puntos = series.map(s =>
-    historial.map(r => ({
-      x: Date.parse(r.t),
-      y: r[s.campo]
-    })).filter(p =>
-      Number.isFinite(p.x) &&
-      p.x >= desde &&
-      typeof p.y === "number" &&
-      Number.isFinite(p.y)
-    )
+    historial
+      .map(r => ({
+        x: Date.parse(r.t),
+        y: r[s.campo]
+      }))
+      .filter(p =>
+        Number.isFinite(p.x) &&
+        p.x >= desde &&
+        typeof p.y === "number" &&
+        Number.isFinite(p.y)
+      )
   );
 
   const todos = puntos.flat();
 
   if (!todos.length) {
+
     svgNodo(svg, "text", {
       x: 320,
       y: 125,
@@ -877,8 +901,9 @@ function graficar(id, historial, campo1, campo2) {
     15 + (maxY - y) /
     (maxY - minY) * 184;
 
-  // Cuadrícula
+  // Cuadrícula horizontal
   for (let i = 0; i <= 4; i++) {
+
     const y = 15 + i * 46;
 
     const valor =
@@ -902,8 +927,9 @@ function graficar(id, historial, campo1, campo2) {
     }, valor.toFixed(1) + "°");
   }
 
-  // Eje horario
+  // Etiquetas horarias
   for (let i = 0; i <= 4; i++) {
+
     const t =
       minX + i * (maxX - minX) / 4;
 
@@ -927,12 +953,14 @@ function graficar(id, historial, campo1, campo2) {
     }, etiqueta);
   }
 
-  // Líneas de datos
+  // Líneas actual y objetivo
   puntos.forEach((serie, i) => {
+
     let camino = "";
     let anterior = null;
 
     serie.forEach(p => {
+
       const salto =
         anterior === null ||
         p.x - anterior > 12 * 60000;
@@ -956,11 +984,13 @@ function graficar(id, historial, campo1, campo2) {
   });
 }
 
-/* ======================================
-   MAPA CORREGIDO
-====================================== */
+
+// ====================================
+// MAPA GPS APROXIMADO
+// ====================================
 
 function ponerMapa(pos) {
+
   const contenedor = $("map");
   const aviso = $("mapHint");
   const error = $("mapError");
@@ -982,9 +1012,12 @@ function ponerMapa(pos) {
   }
 
   if (typeof window.L === "undefined") {
+
     error.hidden = false;
+
     error.textContent =
-      "No se cargó la biblioteca del mapa.";
+      "No se pudo cargar la biblioteca Leaflet.";
+
     return;
   }
 
@@ -996,32 +1029,47 @@ function ponerMapa(pos) {
     Number.isFinite(pos.radio_m) &&
     pos.radio_m > 0
       ? pos.radio_m
-      : 1200;
+      : 300;
+
+  // Mostrar automáticamente el radio real
+  const textoRadio = radio >= 1000
+    ? (radio / 1000).toFixed(1) + " km"
+    : radio.toFixed(0) + " metros";
 
   poner(
     "zona",
     "Zona aproximada de operación. " +
-    "Radio: " +
-    (radio / 1000).toFixed(1) +
-    " km. El centro no identifica " +
-    "la posición exacta del dispositivo."
+    "Radio de privacidad: " + textoRadio +
+    ". La ubicación exacta está protegida."
   );
 
-  // Mostrar el contenedor.
+  poner(
+    "textoRadio",
+    "¿Qué representa el círculo? " +
+    "Es una zona aproximada de " +
+    textoRadio +
+    " de radio. El centro representa " +
+    "una ubicación generalizada, no la " +
+    "posición GPS exacta del seguidor."
+  );
+
+  // Mostrar el contenedor del mapa
   contenedor.hidden = false;
   aviso.hidden = true;
 
-  // Inicializar una sola vez.
+  // Crear mapa una sola vez
   if (mapa === null) {
+
     mapa = L.map("map", {
       scrollWheelZoom: false,
       zoomControl: true,
-
-      // Dibujar las figuras con Canvas:
-      // no depende de los estilos SVG.
       preferCanvas: true
-    }).setView([lat, lon], 13);
+    }).setView(
+      [lat, lon],
+      ZOOM_INICIAL_MAPA
+    );
 
+    // Capa de calles OpenStreetMap
     L.tileLayer(
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
@@ -1034,55 +1082,54 @@ function ponerMapa(pos) {
     ).addTo(mapa);
   }
 
-  // Crear o actualizar la zona.
+  // Crear o actualizar el círculo
   if (circulo === null) {
-    circulo = L.circle([lat, lon], {
-      radius: radio,
 
-      // El renderer Canvas evita conflictos
-      // con los SVG de las otras gráficas.
-      renderer: L.canvas(),
-
-      color: "#347ed0",
-      weight: 3,
-      opacity: 0.95,
-      fillColor: "#70b7ff",
-      fillOpacity: 0.32
-    }).addTo(mapa);
+    circulo = L.circle(
+      [lat, lon],
+      {
+        radius: radio,
+        color: "#347ed0",
+        weight: 3,
+        opacity: 0.95,
+        fillColor: "#70b7ff",
+        fillOpacity: 0.32
+      }
+    ).addTo(mapa);
 
     circulo.bindPopup(
       "<strong>Seguidor Solar UTB</strong>" +
-      "<p>Área aproximada de operación.</p>" +
-      "<p>No es la ubicación GPS exacta.</p>"
+      "<p>Zona de ubicación aproximada.</p>" +
+      "<p>El centro no identifica " +
+      "el punto GPS exacto.</p>"
     );
 
   } else {
+
     circulo.setLatLng([lat, lon]);
     circulo.setRadius(radio);
   }
 
+  // Recentrar solo si cambian los datos
   const zonaActual =
-    lat.toFixed(4) + "," +
-    lon.toFixed(4) + "," + radio;
+    lat.toFixed(5) + "," +
+    lon.toFixed(5) + "," +
+    radio;
 
-  // Solo recentrar cuando cambia la zona.
   if (ultimaZona !== zonaActual) {
-    mapa.invalidateSize();
 
-    mapa.fitBounds(
-      circulo.getBounds(),
-      {
-        padding: [25, 25],
-        maxZoom: 15,
-        animate: false
-      }
+    mapa.setView(
+      [lat, lon],
+      ZOOM_INICIAL_MAPA,
+      { animate: false }
     );
 
     ultimaZona = zonaActual;
   }
 
-  // Ajuste de tamaño después de mostrarlo.
+  // Corregir dimensiones del mapa
   requestAnimationFrame(() => {
+
     mapa.invalidateSize({
       pan: false
     });
@@ -1091,11 +1138,13 @@ function ponerMapa(pos) {
   error.hidden = true;
 }
 
-/* ======================================
-   PINTAR DATOS
-====================================== */
+
+// ====================================
+// MOSTRAR DATOS PUBLICOS
+// ====================================
 
 function pintar(d) {
+
   if (
     !d ||
     !d.orientacion ||
@@ -1103,7 +1152,7 @@ function pintar(d) {
     !d.diagnostico
   ) {
     throw new Error(
-      "Formato de datos no válido."
+      "Formato de datos públicos no válido."
     );
   }
 
@@ -1133,7 +1182,7 @@ function pintar(d) {
   $("conexion").style.color =
     actual ? "#80e9af" : "#ffd083";
 
-  // Estado general
+  // Estados
   indicador(
     "gpsEstado",
     g.fix,
@@ -1159,42 +1208,97 @@ function pintar(d) {
   );
 
   // Azimut
-  poner("az", numero(o.az_actual, 1, "°"));
-  poner("azObj", numero(o.az_objetivo, 1, "°"));
-  poner("azErr", numero(o.error_az, 1, "°"));
+  poner(
+    "az",
+    numero(o.az_actual, 1, "°")
+  );
 
-  banda("azBanda", o.error_az, 2.5, o.fecha);
+  poner(
+    "azObj",
+    numero(o.az_objetivo, 1, "°")
+  );
+
+  poner(
+    "azErr",
+    numero(o.error_az, 1, "°")
+  );
+
+  banda(
+    "azBanda",
+    o.error_az,
+    2.5,
+    o.fecha
+  );
 
   // Elevación
-  poner("el", numero(o.el_actual, 1, "°"));
-  poner("elObj", numero(o.el_objetivo, 1, "°"));
-  poner("elErr", numero(o.error_el, 1, "°"));
+  poner(
+    "el",
+    numero(o.el_actual, 1, "°")
+  );
 
-  banda("elBanda", o.error_el, 1.5, o.fecha);
+  poner(
+    "elObj",
+    numero(o.el_objetivo, 1, "°")
+  );
+
+  poner(
+    "elErr",
+    numero(o.error_el, 1, "°")
+  );
+
+  banda(
+    "elBanda",
+    o.error_el,
+    1.5,
+    o.fecha
+  );
 
   // Posición solar
-  poner("solAz", numero(g.az_solar, 1, "°"));
-  poner("solEl", numero(g.el_solar, 1, "°"));
+  poner(
+    "solAz",
+    numero(g.az_solar, 1, "°")
+  );
+
+  poner(
+    "solEl",
+    numero(g.el_solar, 1, "°")
+  );
 
   // GPS
-  poner("sats", numero(g.satelites, 0));
-  poner("hdop", numero(g.hdop, 1));
+  poner(
+    "sats",
+    numero(g.satelites, 0)
+  );
+
+  poner(
+    "hdop",
+    numero(g.hdop, 1)
+  );
 
   // Diagnóstico
-  poner("wifi", numero(s.wifi, 0, " dBm"));
-  poner("uptime", numero(s.minutos, 0, " min"));
+  poner(
+    "wifi",
+    numero(s.wifi, 0, " dBm")
+  );
+
+  poner(
+    "uptime",
+    numero(s.minutos, 0, " min")
+  );
+
   poner(
     "estado",
     s.estado === 0
       ? "REPOSO"
       : numero(s.estado, 0)
   );
+
   poner(
     "inclinacion",
     numero(o.inclinacion, 1, "°")
   );
 
-  // Gráficas
+  // Gráficas históricas
   const historial =
     Array.isArray(d.historial)
       ? d.historial
@@ -1214,19 +1318,24 @@ function pintar(d) {
     "el_objetivo"
   );
 
-  // Mapa
+  // Ubicación aproximada
   ponerMapa(g.ubicacion);
 }
 
-/* ======================================
-   CONSULTAR DATOS PUBLICOS
-====================================== */
+
+// ====================================
+// ACTUALIZACION DE DATOS
+// ====================================
 
 async function actualizar() {
+
   try {
+
     const respuesta = await fetch(
       "./data.json?v=" + Date.now(),
-      { cache: "no-store" }
+      {
+        cache: "no-store"
+      }
     );
 
     if (!respuesta.ok) {
@@ -1235,26 +1344,30 @@ async function actualizar() {
       );
     }
 
-    const nuevosDatos = await respuesta.json();
+    const nuevosDatos =
+      await respuesta.json();
 
-    // Conservar los datos solo si son válidos.
     pintar(nuevosDatos);
+
     datos = nuevosDatos;
 
   } catch (error) {
+
     poner(
       "conexion",
-      "Error al cargar la telemetría: " +
+      "No fue posible cargar los datos: " +
       error.message
     );
 
-    $("conexion").style.color = "#ffc7ce";
+    $("conexion").style.color =
+      "#ffc7ce";
   }
 }
 
-/* ======================================
-   EVENTOS
-====================================== */
+
+// ====================================
+// CONTROLES Y REFRESCO
+// ====================================
 
 $("reload").addEventListener(
   "click",
@@ -1270,13 +1383,16 @@ $("periodo").addEventListener(
   }
 );
 
-// Inicio
+// Primera carga
 actualizar();
 
-// Refresco cada minuto del navegador.
-// Los datos de GitHub se actualizan
-// según el workflow programado.
-setInterval(actualizar, 60000);
+// Consulta cada minuto.
+// GitHub Actions renueva los datos
+// aproximadamente cada cinco minutos.
+setInterval(
+  actualizar,
+  60000
+);
 
 </script>
 </body>
