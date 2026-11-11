@@ -2,27 +2,61 @@
 import json
 import math
 import os
+
 from pathlib import Path
 from datetime import datetime, timezone
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
+
+# ==========================================
+# CONFIGURACION DE LOS CANALES
+# ==========================================
+
 CANALES = {
     "orientacion": (
-        3575336, "TS_READ_ORIENTACION"
+        3575336,
+        "TS_READ_ORIENTACION"
     ),
+
     "gps": (
-        3575337, "TS_READ_GPS_SOL"
+        3575337,
+        "TS_READ_GPS_SOL"
     ),
+
     "diagnostico": (
-        3575338, "TS_READ_DIAGNOSTICO"
+        3575338,
+        "TS_READ_DIAGNOSTICO"
     ),
 }
 
 
+# ==========================================
+# PRIVACIDAD DEL MAPA PUBLICO
+# ==========================================
+
+# Cuadricula geografica de aproximadamente
+# 1.1 km de lado, segun la latitud.
+#
+# Solo se publica el centro de la celda.
+# NO se publica la coordenada GPS exacta.
+
+TAMANO_CELDA_GRADOS = 0.01
+
+# Circulo mostrado en el mapa publico.
+RADIO_PUBLICO_METROS = 1200
+
+
+# ==========================================
+# CONSULTAR THINGSPEAK
+# ==========================================
+
 def obtener_datos(nombre):
     canal_id, secreto = CANALES[nombre]
-    clave = os.environ.get(secreto, "").strip()
+
+    clave = os.environ.get(
+        secreto, ""
+    ).strip()
 
     if not clave:
         raise RuntimeError(
@@ -36,23 +70,34 @@ def obtener_datos(nombre):
     })
 
     url = (
-        f"https://api.thingspeak.com/"
+        "https://api.thingspeak.com/"
         f"channels/{canal_id}/feeds.json?"
         f"{parametros}"
     )
 
-    with urlopen(url, timeout=30) as respuesta:
+    with urlopen(
+        url,
+        timeout=30
+    ) as respuesta:
+
         datos = json.load(respuesta)
 
-    registros = datos.get("feeds", [])
+    registros = datos.get(
+        "feeds", []
+    )
 
     if not registros:
         raise RuntimeError(
-            f"Sin datos del canal {canal_id}"
+            "Sin datos del canal "
+            f"{canal_id}"
         )
 
     return registros
 
+
+# ==========================================
+# CONVERSIONES SEGURAS
+# ==========================================
 
 def numero(valor, decimales=1):
     try:
@@ -72,16 +117,47 @@ def numero(valor, decimales=1):
 
 def entero(valor):
     n = numero(valor, 0)
-    return None if n is None else int(n)
 
+    return (
+        None if n is None
+        else int(n)
+    )
+
+
+def campo(registro, indice, decimales=1):
+    return numero(
+        registro.get(
+            f"field{indice}"
+        ),
+        decimales
+    )
+
+
+def ultimo(registros):
+    return registros[-1]
+
+
+# ==========================================
+# FECHAS DE REGISTRO PUBLICAS
+# ==========================================
 
 def fecha_publica(fecha):
-    """Ocultar segundos y agrupar en 5 minutos."""
-    instante = datetime.fromisoformat(
-        fecha.replace("Z", "+00:00")
-    ).astimezone(timezone.utc)
+    """
+    Agrupar marcas de tiempo cada
+    cinco minutos.
+    """
 
-    minuto = (instante.minute // 5) * 5
+    instante = datetime.fromisoformat(
+        fecha.replace(
+            "Z", "+00:00"
+        )
+    ).astimezone(
+        timezone.utc
+    )
+
+    minuto = (
+        instante.minute // 5
+    ) * 5
 
     instante = instante.replace(
         minute=minuto,
@@ -94,19 +170,19 @@ def fecha_publica(fecha):
     )
 
 
-def campo(registro, indice, decimales=1):
-    return numero(
-        registro.get(f"field{indice}"),
-        decimales
-    )
-
-
-def ultimo(registros):
-    return registros[-1]
-
+# ==========================================
+# HISTORIAL DE ORIENTACION
+# ==========================================
 
 def construir_historial(registros):
-    """Solo ángulos; nunca coordenadas GPS."""
+    """
+    Publica solamente los datos
+    angulares necesarios para
+    dibujar las graficas.
+
+    No incluye informacion GPS.
+    """
+
     agrupados = {}
 
     for registro in registros:
@@ -116,128 +192,254 @@ def construir_historial(registros):
 
         agrupados[fecha] = {
             "t": fecha,
-            "az_actual": campo(registro, 1),
-            "az_objetivo": campo(registro, 2),
-            "el_actual": campo(registro, 4),
-            "el_objetivo": campo(registro, 5),
+
+            "az_actual": campo(
+                registro, 1
+            ),
+
+            "az_objetivo": campo(
+                registro, 2
+            ),
+
+            "el_actual": campo(
+                registro, 4
+            ),
+
+            "el_objetivo": campo(
+                registro, 5
+            ),
         }
 
     return [
-        agrupados[t] for t in sorted(agrupados)
+        agrupados[t]
+        for t in sorted(agrupados)
     ]
 
+
+# ==========================================
+# UBICACION GPS APROXIMADA
+# ==========================================
+
+def centro_celda(coordenada):
+    """
+    Convierte una coordenada exacta
+    en el centro de una celda geografica.
+
+    Las coordenadas precisas NO
+    se exportan.
+
+    Esta cuantizacion produce un centro
+    estable ante cambios pequeños del GPS
+    que no crucen el borde de la celda.
+    """
+
+    tamano = TAMANO_CELDA_GRADOS
+
+    base = math.floor(
+        coordenada / tamano
+    ) * tamano
+
+    centro = base + tamano / 2
+
+    return round(centro, 4)
 
 
 def ubicacion_aproximada(registros):
     """
-    Ubicación aproximada para la web pública.
-    Nunca publica las coordenadas GPS completas.
+    Obtiene la ultima posicion GPS valida
+    y publica solo la celda aproximada.
+
+    Field 4: latitud
+    Field 5: longitud
+    Field 6: GPS fix
+
+    No entrega la posicion exacta.
     """
+
     for registro in reversed(registros):
-        lat = campo(registro, 4, 7)
-        lon = campo(registro, 5, 7)
+
+        fix = entero(
+            registro.get("field6")
+        )
+
+        lat = campo(
+            registro, 4, 7
+        )
+
+        lon = campo(
+            registro, 5, 7
+        )
 
         if (
-            lat is not None
+            fix == 1
+            and lat is not None
             and lon is not None
             and -90 <= lat <= 90
             and -180 <= lon <= 180
-            and not (lat == 0 and lon == 0)
+            and not (
+                lat == 0 and lon == 0
+            )
         ):
+
             return {
-                "lat": round(lat, 2),
-                "lon": round(lon, 2),
-                "radio_m": 1200
+                "lat": centro_celda(lat),
+                "lon": centro_celda(lon),
+                "radio_m": RADIO_PUBLICO_METROS
             }
 
     return {
         "lat": None,
         "lon": None,
-        "radio_m": 1200
+        "radio_m": RADIO_PUBLICO_METROS
     }
 
 
+# ==========================================
+# CONSTRUIR TELEMETRIA PUBLICA
+# ==========================================
 
 def main():
-    orientacion = obtener_datos("orientacion")
-    gps = obtener_datos("gps")
-    diagnostico = obtener_datos("diagnostico")
+
+    orientacion = obtener_datos(
+        "orientacion"
+    )
+
+    gps = obtener_datos(
+        "gps"
+    )
+
+    diagnostico = obtener_datos(
+        "diagnostico"
+    )
 
     o = ultimo(orientacion)
     g = ultimo(gps)
     d = ultimo(diagnostico)
 
-    # ÚNICAMENTE campos aprobados.
-    # No publicar los registros originales.
-    # No publicar credenciales.
-    # No publicar latitud ni longitud exactas.
+    # Solo se exportan los campos
+    # expresamente permitidos.
+    #
+    # Nunca se incluyen:
+    # - Credenciales MQTT
+    # - Read API Keys
+    # - Write API Keys
+    # - Latitud GPS exacta
+    # - Longitud GPS exacta
+    # - Registros GPS originales
 
     publico = {
+
         "publicado_utc": datetime.now(
             timezone.utc
         ).replace(
             microsecond=0
         ).isoformat(),
 
+        # ------------------------------
+        # ORIENTACION
+        # ------------------------------
+
         "orientacion": {
+
             "fecha": fecha_publica(
                 o["created_at"]
             ),
+
             "az_actual": campo(o, 1),
+
             "az_objetivo": campo(o, 2),
+
             "error_az": campo(o, 3),
+
             "el_actual": campo(o, 4),
+
             "el_objetivo": campo(o, 5),
+
             "error_el": campo(o, 6),
+
             "inclinacion": campo(o, 7),
+
             "seguimiento": entero(
                 o.get("field8")
             ),
         },
 
+        # ------------------------------
+        # GPS Y SOL
+        # ------------------------------
+
         "gps": {
+
             "fecha": fecha_publica(
                 g["created_at"]
             ),
+
             "az_solar": campo(g, 1),
+
             "el_solar": campo(g, 2),
+
             "declinacion": campo(g, 3),
+
             "fix": entero(
                 g.get("field6")
             ),
+
             "satelites": entero(
                 g.get("field7")
             ),
+
             "hdop": campo(g, 8),
+
+            # Ubicacion filtrada.
             "ubicacion": ubicacion_aproximada(
                 gps
             ),
         },
 
+        # ------------------------------
+        # DIAGNOSTICO
+        # ------------------------------
+
         "diagnostico": {
+
             "fecha": fecha_publica(
                 d["created_at"]
             ),
+
             "sol_actual": entero(
                 d.get("field1")
             ),
+
             "estado": entero(
                 d.get("field2")
             ),
+
             "wifi": entero(
                 d.get("field3")
             ),
+
             "minutos": entero(
                 d.get("field4")
             ),
         },
+
+        # ------------------------------
+        # HISTORIAL
+        # ------------------------------
 
         "historial": construir_historial(
             orientacion
         )
     }
 
-    destino = Path("site/data.json")
+    # ==================================
+    # GUARDAR ARCHIVO PUBLICO
+    # ==================================
+
+    destino = Path(
+        "site/data.json"
+    )
+
     destino.parent.mkdir(
         parents=True,
         exist_ok=True
@@ -253,8 +455,22 @@ def main():
     )
 
     print(
-        "Telemetría pública preparada: "
-        f"{len(publico['historial'])} puntos."
+        "Dashboard publico actualizado."
+    )
+
+    print(
+        "Registros de orientacion: "
+        f"{len(publico['historial'])}"
+    )
+
+    print(
+        "Coordenadas originales GPS: "
+        "NO PUBLICADAS."
+    )
+
+    print(
+        "Radio publico de ubicacion: "
+        f"{RADIO_PUBLICO_METROS} metros."
     )
 
 
