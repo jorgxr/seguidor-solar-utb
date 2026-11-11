@@ -4,168 +4,624 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Seguidor Solar UTB | Monitoreo Público</title>
-  <link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- MAPAS LEAFLET -->
+<link rel="stylesheet"
+ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<script
+ src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#0b1424;color:#eef5ff;font:14px Arial,sans-serif}
-main{max-width:1350px;margin:auto;padding:24px}
-header{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;border-bottom:1px solid #31445c;padding-bottom:22px}
-.eyebrow{font-size:11px;letter-spacing:2px;color:#79d1ff;font-weight:bold}
-h1{color:#70ccff;font-size:30px;margin:7px 0}
-h2{font-size:19px;margin:28px 0 14px}
-h3{font-size:15px;margin:0 0 14px}
-p,.muted,small{color:#9fb4d0}
-button,select{padding:11px;border:1px solid #38526c;border-radius:8px;background:#1a2e47;color:white;cursor:pointer}
-button{background:#087fb9}
-.card{background:#17283e;border:1px solid #344b65;border-radius:13px;padding:18px;min-width:0}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
-.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
-.value{font-size:30px;font-weight:750;display:block;margin:10px 0}
-.caption{font-size:12px;color:#aec0da}
-.state{text-align:center}
-.state b{display:block;padding:12px;border-radius:8px;margin-top:12px}
-.good{background:#174b3a;color:#86efad}
-.warn{background:#65471d;color:#ffcf79}
-.bad{background:#542b36;color:#ffc7ce}
-.neutral{background:#36455a;color:#d1d9e5}
-.row{display:flex;justify-content:space-between;gap:10px;padding-top:10px;margin-top:10px;border-top:1px solid #2d425b}
-.band{display:inline-block;padding:8px 10px;border-radius:7px;font-size:12px;font-weight:bold;margin-top:12px}
-.legend{display:flex;gap:18px;font-size:12px;margin-bottom:10px}
-.key{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
-.blue{background:#2bc3e7}.orange{background:#ffa83e}
-svg{display:block;width:100%;height:auto}
-#map{width:100%;height:360px;border:0;border-radius:10px;background:#dfe7ef}
-#map[hidden]{display:none}
-#mapHint{padding:22px;background:#102036;border-radius:8px;text-align:center}
-a{color:#77d1ff}
-footer{border-top:1px solid #31445c;text-align:center;margin-top:32px;padding:22px;color:#8ba2bd;font-size:12px}
-.statusline{margin:16px 0;line-height:1.6}
-@media(max-width:950px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:1fr}}
-@media(max-width:620px){main{padding:13px}.grid,.grid.two{grid-template-columns:1fr}h1{font-size:24px}}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0b1424;
+  color: #eef5ff;
+  font: 14px Arial, sans-serif;
+}
+
+main {
+  max-width: 1350px;
+  margin: auto;
+  padding: 24px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #31445c;
+  padding-bottom: 22px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #79d1ff;
+  font-weight: bold;
+}
+
+h1 {
+  color: #70ccff;
+  font-size: 30px;
+  margin: 7px 0;
+}
+
+h2 {
+  font-size: 19px;
+  margin: 28px 0 14px;
+}
+
+h3 {
+  font-size: 15px;
+  margin: 0 0 14px;
+}
+
+p, .muted, small {
+  color: #9fb4d0;
+}
+
+button, select {
+  padding: 11px;
+  border: 1px solid #38526c;
+  border-radius: 8px;
+  background: #1a2e47;
+  color: white;
+  cursor: pointer;
+}
+
+button {
+  background: #087fb9;
+}
+
+.card {
+  background: #17283e;
+  border: 1px solid #344b65;
+  border-radius: 13px;
+  padding: 18px;
+  min-width: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.value {
+  font-size: 30px;
+  font-weight: 750;
+  display: block;
+  margin: 10px 0;
+}
+
+.caption {
+  font-size: 12px;
+  color: #aec0da;
+}
+
+.state {
+  text-align: center;
+}
+
+.state b {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.good {
+  background: #174b3a;
+  color: #86efad;
+}
+
+.warn {
+  background: #65471d;
+  color: #ffcf79;
+}
+
+.bad {
+  background: #542b36;
+  color: #ffc7ce;
+}
+
+.neutral {
+  background: #36455a;
+  color: #d1d9e5;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #2d425b;
+}
+
+.band {
+  display: inline-block;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+.legend {
+  display: flex;
+  gap: 18px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.key {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.blue {
+  background: #2bc3e7;
+}
+
+.orange {
+  background: #ffa83e;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.statusline {
+  margin: 16px 0;
+  line-height: 1.6;
+}
+
+/* =====================================
+   MAPA DE UBICACION APROXIMADA
+===================================== */
+
+.map-card {
+  overflow: hidden;
+}
+
+.map-description {
+  margin-bottom: 16px;
+}
+
+#map {
+  width: 100%;
+  height: 390px;
+  border: 0;
+  border-radius: 10px;
+  background: #dfe7ef;
+  z-index: 0;
+}
+
+#map[hidden] {
+  display: none;
+}
+
+#mapHint {
+  padding: 35px;
+  min-height: 170px;
+  background: #102036;
+  border: 1px dashed #3e5875;
+  border-radius: 9px;
+  text-align: center;
+  color: #b7cde5;
+}
+
+.map-explanation {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.map-privacy {
+  display: inline-block;
+  background: #153d53;
+  color: #85d5ff;
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.map-caption {
+  color: #9bb2ce;
+  font-size: 12px;
+}
+
+a {
+  color: #77d1ff;
+}
+
+footer {
+  border-top: 1px solid #31445c;
+  text-align: center;
+  margin-top: 32px;
+  padding: 22px;
+  color: #8ba2bd;
+  font-size: 12px;
+}
+
+@media (max-width: 950px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid.three {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  main {
+    padding: 13px;
+  }
+
+  .grid, .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  #map {
+    height: 330px;
+  }
+}
 </style>
 </head>
 
 <body>
 <main>
+
+<!-- ENCABEZADO -->
 <header>
   <div>
-    <div class="eyebrow">PLATAFORMA IoT · VISTA PÚBLICA</div>
+    <div class="eyebrow">
+      PLATAFORMA IoT · VISTA PUBLICA
+    </div>
+
     <h1>SEGUIDOR SOLAR UTB</h1>
-    <p>Seguimiento solar de dos ejes · Monitoreo remoto</p>
+
+    <p>
+      Seguimiento solar de dos ejes ·
+      Monitoreo remoto
+    </p>
   </div>
+
   <div>
     <label for="periodo">Historial: </label>
+
     <select id="periodo">
       <option value="20">20 minutos</option>
       <option value="60">1 hora</option>
       <option value="180">3 horas</option>
       <option value="720">12 horas</option>
     </select>
+
     <button id="reload">Actualizar</button>
   </div>
 </header>
 
+<!-- ESTADO DE LA TELEMETRIA -->
 <div class="statusline">
-  <strong id="conexion">Consultando telemetría...</strong>
-  <div class="muted" id="fecha">Última publicación: --</div>
-  <div class="muted">Actualización pública programada cada 5 minutos, aproximadamente.</div>
+  <strong id="conexion">
+    Consultando telemetría...
+  </strong>
+
+  <div class="muted" id="fecha">
+    Última publicación: --
+  </div>
+
+  <div class="muted">
+    Actualización pública programada
+    aproximadamente cada 5 minutos.
+  </div>
 </div>
 
+<!-- ESTADOS -->
 <h2>Estado del sistema</h2>
+
 <div class="grid three">
-  <div class="card state">GPS<b id="gpsEstado" class="neutral">--</b></div>
-  <div class="card state">Seguimiento automático<b id="segEstado" class="neutral">--</b></div>
-  <div class="card state">Datos solares<b id="solEstado" class="neutral">--</b></div>
+  <div class="card state">
+    GPS
+    <b id="gpsEstado" class="neutral">--</b>
+  </div>
+
+  <div class="card state">
+    Seguimiento automático
+    <b id="segEstado" class="neutral">--</b>
+  </div>
+
+  <div class="card state">
+    Datos solares
+    <b id="solEstado" class="neutral">--</b>
+  </div>
 </div>
 
+<!-- ORIENTACION -->
 <h2>Orientación del prototipo</h2>
+
 <div class="grid two">
+
   <div class="card">
-    <span class="caption">AZIMUT ACTUAL</span>
+    <span class="caption">
+      AZIMUT ACTUAL
+    </span>
+
     <strong id="az" class="value">--</strong>
-    <div class="row"><span>Objetivo</span><b id="azObj">--</b></div>
-    <div class="row"><span>Error</span><b id="azErr">--</b></div>
-    <span id="azBanda" class="band neutral">Sin datos</span>
-    <small> Umbral de corrección: 2,5°</small>
+
+    <div class="row">
+      <span>Objetivo</span>
+      <b id="azObj">--</b>
+    </div>
+
+    <div class="row">
+      <span>Error</span>
+      <b id="azErr">--</b>
+    </div>
+
+    <span id="azBanda" class="band neutral">
+      Sin datos
+    </span>
+
+    <small>
+      Umbral de corrección: 2,5°
+    </small>
   </div>
+
   <div class="card">
-    <span class="caption">ELEVACIÓN ACTUAL</span>
+    <span class="caption">
+      ELEVACIÓN ACTUAL
+    </span>
+
     <strong id="el" class="value">--</strong>
-    <div class="row"><span>Objetivo</span><b id="elObj">--</b></div>
-    <div class="row"><span>Error</span><b id="elErr">--</b></div>
-    <span id="elBanda" class="band neutral">Sin datos</span>
-    <small> Umbral de corrección: 1,5°</small>
+
+    <div class="row">
+      <span>Objetivo</span>
+      <b id="elObj">--</b>
+    </div>
+
+    <div class="row">
+      <span>Error</span>
+      <b id="elErr">--</b>
+    </div>
+
+    <span id="elBanda" class="band neutral">
+      Sin datos
+    </span>
+
+    <small>
+      Umbral de corrección: 1,5°
+    </small>
   </div>
+
 </div>
 
+<!-- HISTORIAL -->
 <h2>Historial de orientación</h2>
+
 <div class="grid two">
+
   <div class="card">
     <h3>Seguimiento de azimut</h3>
+
     <div class="legend">
-      <span><i class="key blue"></i>Actual</span>
-      <span><i class="key orange"></i>Objetivo</span>
+      <span>
+        <i class="key blue"></i>Actual
+      </span>
+
+      <span>
+        <i class="key orange"></i>Objetivo
+      </span>
     </div>
-    <svg id="graficaAz" viewBox="0 0 640 240"></svg>
+
+    <svg id="graficaAz"
+         viewBox="0 0 640 240">
+    </svg>
   </div>
+
   <div class="card">
     <h3>Seguimiento de elevación</h3>
+
     <div class="legend">
-      <span><i class="key blue"></i>Actual</span>
-      <span><i class="key orange"></i>Objetivo</span>
+      <span>
+        <i class="key blue"></i>Actual
+      </span>
+
+      <span>
+        <i class="key orange"></i>Objetivo
+      </span>
     </div>
-    <svg id="graficaEl" viewBox="0 0 640 240"></svg>
+
+    <svg id="graficaEl"
+         viewBox="0 0 640 240">
+    </svg>
+  </div>
+
+</div>
+
+<!-- SOL Y GPS -->
+<h2>Posición solar y calidad GPS</h2>
+
+<div class="grid">
+  <div class="card">
+    <span class="caption">
+      Azimut solar
+    </span>
+
+    <strong id="solAz" class="value">--</strong>
+  </div>
+
+  <div class="card">
+    <span class="caption">
+      Elevación solar
+    </span>
+
+    <strong id="solEl" class="value">--</strong>
+  </div>
+
+  <div class="card">
+    <span class="caption">
+      Satélites GPS
+    </span>
+
+    <strong id="sats" class="value">--</strong>
+  </div>
+
+  <div class="card">
+    <span class="caption">
+      GPS HDOP
+    </span>
+
+    <strong id="hdop" class="value">--</strong>
   </div>
 </div>
 
-<h2>Posición solar y calidad GPS</h2>
-<div class="grid">
-  <div class="card"><span class="caption">Azimut solar</span><strong id="solAz" class="value">--</strong></div>
-  <div class="card"><span class="caption">Elevación solar</span><strong id="solEl" class="value">--</strong></div>
-  <div class="card"><span class="caption">Satélites GPS</span><strong id="sats" class="value">--</strong></div>
-  <div class="card"><span class="caption">GPS HDOP</span><strong id="hdop" class="value">--</strong></div>
+<!-- MAPA PUBLICO -->
+<h2>Ubicación aproximada del dispositivo</h2>
+
+<div class="card map-card">
+
+  <h3>
+    Zona general de operación del seguidor solar
+  </h3>
+
+  <p class="map-description" id="zona">
+    Consultando zona aproximada...
+  </p>
+
+  <div class="map-privacy">
+    UBICACIÓN APROXIMADA · GPS PROTEGIDO
+  </div>
+
+  <p id="mapHint">
+    El mapa aparecerá cuando se disponga
+    de información geográfica aproximada.
+  </p>
+
+  <div id="map"
+       aria-label="Mapa de ubicación aproximada"
+       hidden>
+  </div>
+
+  <p class="map-explanation">
+    <strong>¿Qué representa el círculo azul?</strong>
+    Es una zona aproximada de 1,2 km de radio.
+    El seguidor podría encontrarse en cualquier
+    punto de esa área. El centro del círculo
+    no identifica su ubicación exacta.
+  </p>
+
+  <p class="map-caption">
+    Las coordenadas GPS precisas permanecen
+    exclusivamente en los canales privados
+    de ThingSpeak.
+  </p>
+
 </div>
 
-<h2>Ubicación aproximada</h2>
-<div class="card">
-  <h3>Zona general de operación del seguidor solar</h3>
-  <p id="zona">La ubicación exacta se mantiene privada.</p>
-  <p id="mapHint">El mapa se mostrará cuando existan datos.</p>
-  <iframe id="map" title="Mapa de ubicación aproximada" loading="lazy"
-          referrerpolicy="no-referrer" hidden></iframe>
-  <small>El marcador indica una zona general, no la posición exacta del equipo.</small>
-</div>
-
+<!-- DIAGNOSTICO -->
 <h2>Diagnóstico</h2>
+
 <div class="grid">
-  <div class="card"><span class="caption">Wi-Fi</span><strong id="wifi" class="value">--</strong></div>
-  <div class="card"><span class="caption">Tiempo encendido</span><strong id="uptime" class="value">--</strong></div>
-  <div class="card"><span class="caption">Estado del controlador</span><strong id="estado" class="value">--</strong></div>
-  <div class="card"><span class="caption">Inclinación requerida</span><strong id="inclinacion" class="value">--</strong></div>
+
+  <div class="card">
+    <span class="caption">Wi-Fi</span>
+    <strong id="wifi" class="value">--</strong>
+  </div>
+
+  <div class="card">
+    <span class="caption">
+      Tiempo encendido
+    </span>
+
+    <strong id="uptime" class="value">--</strong>
+  </div>
+
+  <div class="card">
+    <span class="caption">
+      Estado del controlador
+    </span>
+
+    <strong id="estado" class="value">--</strong>
+  </div>
+
+  <div class="card">
+    <span class="caption">
+      Inclinación requerida
+    </span>
+
+    <strong id="inclinacion" class="value">--</strong>
+  </div>
+
 </div>
 
+<!-- PIE -->
 <footer>
-  SEGUIDOR SOLAR UTB · ESP32 · GPS · QMC5883P · MPU-6500 · ThingSpeak<br>
-  Vista pública de solo lectura. La operación de motores no depende de esta página.
+  SEGUIDOR SOLAR UTB · ESP32 · GPS ·
+  QMC5883P · MPU-6500 · ThingSpeak
+
+  <p>
+    Vista pública de solo lectura.
+    La operación de los motores no depende
+    de esta página.
+  </p>
 </footer>
+
 </main>
 
 <script>
 "use strict";
 
+// ======================================
+// UTILIDADES
+// ======================================
+
 const $ = id => document.getElementById(id);
-const SVG_NS = "http://www.w3.org/2000/svg";
+
+const SVG_NS =
+  "http://www.w3.org/2000/svg";
+
 let datos = null;
+let mapaPublico = null;
+let circuloPublico = null;
+let ultimaZona = null;
 
 function n(v, dec = 1, unidad = "") {
-  return typeof v === "number" && Number.isFinite(v)
-    ? v.toFixed(dec) + unidad : "--";
+  return typeof v === "number" &&
+         Number.isFinite(v)
+    ? v.toFixed(dec) + unidad
+    : "--";
 }
 
 function poner(id, valor) {
@@ -174,191 +630,629 @@ function poner(id, valor) {
 
 function reciente(fecha) {
   const t = Date.parse(fecha || "");
-  return Number.isFinite(t) && Date.now() - t < 20 * 60000;
+
+  return Number.isFinite(t) &&
+    Date.now() - t >= -60000 &&
+    Date.now() - t < 20 * 60000;
 }
 
 function hora(fecha, zona = "America/Bogota") {
-  return new Intl.DateTimeFormat("es-CO", {
-    timeZone: zona, day: "2-digit", month: "2-digit",
-    year: "numeric", hour: "2-digit",
-    minute: "2-digit", hourCycle: "h23"
-  }).format(new Date(fecha));
+  const t = Date.parse(fecha);
+
+  if (!Number.isFinite(t)) return "--";
+
+  return new Intl.DateTimeFormat(
+    "es-CO",
+    {
+      timeZone: zona,
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }
+  ).format(new Date(t));
 }
 
-function indicador(id, valor, fecha, encendido, apagado) {
+// ======================================
+// ESTADOS
+// ======================================
+
+function indicador(
+  id, valor, fecha, encendido, apagado
+) {
   const e = $(id);
   const fresco = reciente(fecha);
-  e.className = fresco ? (valor === 1 ? "good" : "bad") : "neutral";
-  e.textContent = !fresco ? "SIN DATOS RECIENTES" :
-    valor === 1 ? encendido : valor === 0 ? apagado : "SIN INFORMACIÓN";
+
+  e.className = fresco
+    ? (valor === 1 ? "good" :
+       valor === 0 ? "bad" : "neutral")
+    : "neutral";
+
+  e.textContent = !fresco
+    ? "SIN DATOS RECIENTES"
+    : valor === 1
+      ? encendido
+      : valor === 0
+        ? apagado
+        : "SIN INFORMACIÓN";
 }
 
 function banda(id, error, limite, fecha) {
   const e = $(id);
-  if (!reciente(fecha) || typeof error !== "number") {
+
+  if (
+    !reciente(fecha) ||
+    typeof error !== "number"
+  ) {
     e.className = "band neutral";
     e.textContent = "SIN DATOS RECIENTES";
     return;
   }
+
   const fuera = Math.abs(error) > limite;
-  e.className = "band " + (fuera ? "warn" : "good");
-  e.textContent = fuera ? "FUERA DE BANDA" : "DENTRO DE BANDA";
+
+  e.className =
+    "band " + (fuera ? "warn" : "good");
+
+  e.textContent = fuera
+    ? "FUERA DE BANDA"
+    : "DENTRO DE BANDA";
 }
 
-function svgNodo(svg, tipo, atributos, texto) {
-  const e = document.createElementNS(SVG_NS, tipo);
-  for (const [k,v] of Object.entries(atributos)) e.setAttribute(k,v);
-  if (texto !== undefined) e.textContent = texto;
+// ======================================
+// GRAFICAS SVG
+// ======================================
+
+function svgNodo(
+  svg, tipo, atributos, texto
+) {
+  const e = document.createElementNS(
+    SVG_NS, tipo
+  );
+
+  for (const [k, v] of Object.entries(
+    atributos
+  )) {
+    e.setAttribute(k, v);
+  }
+
+  if (texto !== undefined) {
+    e.textContent = texto;
+  }
+
   svg.appendChild(e);
   return e;
 }
 
-function graficar(id, historial, campo1, campo2) {
+function graficar(
+  id, historial, campo1, campo2
+) {
   const svg = $(id);
   svg.replaceChildren();
 
-  const minutos = Number($("periodo").value);
-  const desde = Date.now() - minutos * 60000;
+  const minutos = Number(
+    $("periodo").value
+  );
+
+  const desde =
+    Date.now() - minutos * 60000;
+
   const series = [
-    {key: campo1, color: "#2bc3e7"},
-    {key: campo2, color: "#ffa83e"}
+    {
+      key: campo1,
+      color: "#2bc3e7"
+    },
+    {
+      key: campo2,
+      color: "#ffa83e"
+    }
   ];
 
-  const puntos = series.map(s => historial
-    .map(r => ({x: Date.parse(r.t), y: r[s.key]}))
-    .filter(p => Number.isFinite(p.x) &&
-      p.x >= desde && typeof p.y === "number"));
+  const puntos = series.map(s =>
+    historial
+      .map(r => ({
+        x: Date.parse(r.t),
+        y: r[s.key]
+      }))
+      .filter(p =>
+        Number.isFinite(p.x) &&
+        p.x >= desde &&
+        typeof p.y === "number" &&
+        Number.isFinite(p.y)
+      )
+  );
 
   const todos = puntos.flat();
+
   if (!todos.length) {
     svgNodo(svg, "text", {
-      x:320,y:125,fill:"#adc1da",
-      "text-anchor":"middle","font-size":17
+      x: 320,
+      y: 125,
+      fill: "#adc1da",
+      "text-anchor": "middle",
+      "font-size": 17
     }, "Sin datos en el período");
     return;
   }
 
-  const minX = Math.min(...todos.map(p=>p.x));
-  let maxX = Math.max(...todos.map(p=>p.x));
-  if (maxX === minX) maxX += 60000;
+  const minX = Math.min(
+    ...todos.map(p => p.x)
+  );
 
-  let minY = Math.min(...todos.map(p=>p.y));
-  let maxY = Math.max(...todos.map(p=>p.y));
-  const margen = Math.max(.5, (maxY-minY)*.15);
+  let maxX = Math.max(
+    ...todos.map(p => p.x)
+  );
+
+  if (maxX === minX) {
+    maxX += 60000;
+  }
+
+  let minY = Math.min(
+    ...todos.map(p => p.y)
+  );
+
+  let maxY = Math.max(
+    ...todos.map(p => p.y)
+  );
+
+  const margen = Math.max(
+    0.5,
+    (maxY - minY) * 0.15
+  );
+
   minY -= margen;
   maxY += margen;
 
-  const X = x => 52 + (x-minX)/(maxX-minX)*565;
-  const Y = y => 15 + (maxY-y)/(maxY-minY)*184;
+  const X = x =>
+    52 +
+    (x - minX) /
+    (maxX - minX) * 565;
 
-  for (let i=0;i<=4;i++) {
-    const y = 15+i*46;
-    const valor = maxY-i*(maxY-minY)/4;
-    svgNodo(svg,"line",{x1:52,x2:617,y1:y,y2:y,
-      stroke:"#3b536d","stroke-width":1});
-    svgNodo(svg,"text",{x:45,y:y+4,fill:"#b4c6df",
-      "font-size":12,"text-anchor":"end"},valor.toFixed(1)+"°");
-  }
+  const Y = y =>
+    15 +
+    (maxY - y) /
+    (maxY - minY) * 184;
 
-  for (let i=0;i<=4;i++) {
-    const t = minX+i*(maxX-minX)/4;
-    const etiqueta = new Intl.DateTimeFormat("es-CO", {
-      timeZone:"America/Bogota",hour:"2-digit",
-      minute:"2-digit",hourCycle:"h23"
-    }).format(new Date(t));
-    svgNodo(svg,"text",{x:X(t),y:228,fill:"#b4c6df",
-      "font-size":11,"text-anchor":"middle"},etiqueta);
-  }
+  // LINEAS HORIZONTALES
+  for (let i = 0; i <= 4; i++) {
+    const y = 15 + i * 46;
 
-  puntos.forEach((serie,i) => {
-    let anterior = null, camino = "";
-    serie.forEach(p => {
-      const salto = anterior === null || p.x-anterior > 12*60000;
-      camino += (salto?"M":"L") +
-        X(p.x).toFixed(2)+","+Y(p.y).toFixed(2)+" ";
-      anterior=p.x;
+    const valor =
+      maxY - i * (maxY - minY) / 4;
+
+    svgNodo(svg, "line", {
+      x1: 52,
+      x2: 617,
+      y1: y,
+      y2: y,
+      stroke: "#3b536d",
+      "stroke-width": 1
     });
-    svgNodo(svg,"path",{d:camino,fill:"none",
-      stroke:series[i].color,"stroke-width":2.8,
-      "stroke-linejoin":"round","stroke-linecap":"round"});
+
+    svgNodo(svg, "text", {
+      x: 45,
+      y: y + 4,
+      fill: "#b4c6df",
+      "font-size": 12,
+      "text-anchor": "end"
+    }, valor.toFixed(1) + "°");
+  }
+
+  // EJE DE TIEMPO
+  for (let i = 0; i <= 4; i++) {
+    const t =
+      minX + i * (maxX - minX) / 4;
+
+    const etiqueta =
+      new Intl.DateTimeFormat(
+        "es-CO",
+        {
+          timeZone: "America/Bogota",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23"
+        }
+      ).format(new Date(t));
+
+    svgNodo(svg, "text", {
+      x: X(t),
+      y: 228,
+      fill: "#b4c6df",
+      "font-size": 11,
+      "text-anchor": "middle"
+    }, etiqueta);
+  }
+
+  // SERIES REAL Y OBJETIVO
+  puntos.forEach((serie, i) => {
+    let anterior = null;
+    let camino = "";
+
+    serie.forEach(p => {
+      const salto =
+        anterior === null ||
+        p.x - anterior > 12 * 60000;
+
+      camino +=
+        (salto ? "M" : "L") +
+        X(p.x).toFixed(2) +
+        "," +
+        Y(p.y).toFixed(2) +
+        " ";
+
+      anterior = p.x;
+    });
+
+    svgNodo(svg, "path", {
+      d: camino,
+      fill: "none",
+      stroke: series[i].color,
+      "stroke-width": 2.8,
+      "stroke-linejoin": "round",
+      "stroke-linecap": "round"
+    });
   });
 }
 
+// ======================================
+// MAPA PUBLICO CON CIRCULO
+// ======================================
+
 function ponerMapa(pos) {
-  if (!pos || typeof pos.lat !== "number" ||
-      typeof pos.lon !== "number") return;
-  const {lat,lon}=pos;
-  poner("zona","Coordenadas aproximadas: "+
-    lat.toFixed(1)+"°, "+lon.toFixed(1)+"°");
-  const delta=.085;
-  const bbox=[
-    lon-delta,lat-delta,lon+delta,lat+delta
-  ].join(",");
-  $("map").src=
-    "https://www.openstreetmap.org/export/embed.html?bbox="+
-    encodeURIComponent(bbox)+"&layer=mapnik&marker="+
-    encodeURIComponent(lat+","+lon);
-  $("map").hidden=false;
-  $("mapHint").hidden=true;
+  if (
+    !pos ||
+    typeof pos.lat !== "number" ||
+    typeof pos.lon !== "number" ||
+    !Number.isFinite(pos.lat) ||
+    !Number.isFinite(pos.lon)
+  ) {
+    poner(
+      "zona",
+      "Todavía no hay ubicación aproximada."
+    );
+    return;
+  }
+
+  if (typeof window.L === "undefined") {
+    poner(
+      "zona",
+      "Los datos GPS están disponibles, " +
+      "pero no se pudo cargar el mapa."
+    );
+    return;
+  }
+
+  const lat = pos.lat;
+  const lon = pos.lon;
+
+  const radio =
+    typeof pos.radio_m === "number" &&
+    Number.isFinite(pos.radio_m) &&
+    pos.radio_m > 0
+      ? pos.radio_m
+      : 1200;
+
+  const zonaActual =
+    lat + "," + lon + "," + radio;
+
+  poner(
+    "zona",
+    "Zona aproximada de operación. " +
+    "Radio de privacidad: " +
+    (radio / 1000).toFixed(1) +
+    " km. La posición exacta está protegida."
+  );
+
+  const contenedor = $("map");
+  const indicadorMapa = $("mapHint");
+
+  // MOSTRAR EL CONTENEDOR ANTES
+  // DE INICIALIZAR EL MAPA
+  contenedor.hidden = false;
+  indicadorMapa.hidden = true;
+
+  if (mapaPublico === null) {
+    mapaPublico = L.map("map", {
+      scrollWheelZoom: false,
+      zoomControl: true
+    });
+
+    L.tileLayer(
+      "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="' +
+          'https://www.openstreetmap.org/copyright">' +
+          'OpenStreetMap</a>'
+      }
+    ).addTo(mapaPublico);
+  }
+
+  if (circuloPublico === null) {
+    circuloPublico = L.circle(
+      [lat, lon],
+      {
+        radius: radio,
+        color: "#3288d5",
+        weight: 3,
+        opacity: 0.9,
+        fillColor: "#69b6ff",
+        fillOpacity: 0.28
+      }
+    ).addTo(mapaPublico);
+
+    circuloPublico.bindPopup(
+      "<strong>Seguidor Solar UTB</strong>" +
+      "<p>Área aproximada de ubicación.</p>" +
+      "<p>No representa la posición GPS exacta.</p>"
+    );
+  } else {
+    circuloPublico.setLatLng([lat, lon]);
+    circuloPublico.setRadius(radio);
+  }
+
+  if (ultimaZona !== zonaActual) {
+    mapaPublico.fitBounds(
+      circuloPublico.getBounds(),
+      {
+        padding: [35, 35],
+        maxZoom: 15,
+        animate: false
+      }
+    );
+
+    ultimaZona = zonaActual;
+  }
+
+  // CORREGIR DIMENSIONES DESPUES
+  // DE MOSTRAR EL CONTENEDOR
+  window.requestAnimationFrame(() => {
+    mapaPublico.invalidateSize({
+      pan: false
+    });
+  });
 }
 
+// ======================================
+// MOSTRAR DATOS PUBLICOS
+// ======================================
+
 function pintar(d) {
-  const o=d.orientacion, g=d.gps, s=d.diagnostico;
-  poner("fecha","Última publicación del sitio: "+
-    hora(d.publicado_utc)+" (Colombia)");
+  if (
+    !d ||
+    !d.orientacion ||
+    !d.gps ||
+    !d.diagnostico
+  ) {
+    throw new Error(
+      "Formato de datos públicos no válido."
+    );
+  }
 
-  const ok=reciente(o.fecha)&&reciente(g.fecha)&&reciente(s.fecha);
-  poner("conexion",ok ? "Datos recientes · Tres canales" :
-    "Atención: datos posiblemente desactualizados");
-  $("conexion").style.color=ok?"#80e9af":"#ffd083";
+  const o = d.orientacion;
+  const g = d.gps;
+  const s = d.diagnostico;
 
-  indicador("gpsEstado",g.fix,g.fecha,"GPS VÁLIDO","SIN FIX");
-  indicador("segEstado",o.seguimiento,o.fecha,"HABILITADO","DESACTIVADO");
-  indicador("solEstado",s.sol_actual,s.fecha,"DATOS ACTUALES","NO ACTUALES");
+  poner(
+    "fecha",
+    "Última publicación del sitio: " +
+    hora(d.publicado_utc) +
+    " (Colombia)"
+  );
 
-  poner("az",n(o.az_actual,1,"°"));
-  poner("azObj",n(o.az_objetivo,1,"°"));
-  poner("azErr",n(o.error_az,1,"°"));
-  banda("azBanda",o.error_az,2.5,o.fecha);
+  const ok =
+    reciente(o.fecha) &&
+    reciente(g.fecha) &&
+    reciente(s.fecha);
 
-  poner("el",n(o.el_actual,1,"°"));
-  poner("elObj",n(o.el_objetivo,1,"°"));
-  poner("elErr",n(o.error_el,1,"°"));
-  banda("elBanda",o.error_el,1.5,o.fecha);
+  poner(
+    "conexion",
+    ok
+      ? "Datos recientes · Tres canales"
+      : "Atención: datos posiblemente desactualizados"
+  );
 
-  poner("solAz",n(g.az_solar,1,"°"));
-  poner("solEl",n(g.el_solar,1,"°"));
-  poner("sats",n(g.satelites,0));
-  poner("hdop",n(g.hdop,1));
-  poner("wifi",n(s.wifi,0," dBm"));
-  poner("uptime",n(s.minutos,0," min"));
-  poner("estado",s.estado===0?"REPOSO":n(s.estado,0));
-  poner("inclinacion",n(o.inclinacion,1,"°"));
+  $("conexion").style.color =
+    ok ? "#80e9af" : "#ffd083";
 
-  graficar("graficaAz",d.historial,"az_actual","az_objetivo");
-  graficar("graficaEl",d.historial,"el_actual","el_objetivo");
+  // ESTADOS
+  indicador(
+    "gpsEstado",
+    g.fix,
+    g.fecha,
+    "GPS VÁLIDO",
+    "SIN FIX"
+  );
+
+  indicador(
+    "segEstado",
+    o.seguimiento,
+    o.fecha,
+    "HABILITADO",
+    "DESACTIVADO"
+  );
+
+  indicador(
+    "solEstado",
+    s.sol_actual,
+    s.fecha,
+    "DATOS ACTUALES",
+    "NO ACTUALES"
+  );
+
+  // ORIENTACION
+  poner(
+    "az",
+    n(o.az_actual, 1, "°")
+  );
+
+  poner(
+    "azObj",
+    n(o.az_objetivo, 1, "°")
+  );
+
+  poner(
+    "azErr",
+    n(o.error_az, 1, "°")
+  );
+
+  banda(
+    "azBanda",
+    o.error_az,
+    2.5,
+    o.fecha
+  );
+
+  poner(
+    "el",
+    n(o.el_actual, 1, "°")
+  );
+
+  poner(
+    "elObj",
+    n(o.el_objetivo, 1, "°")
+  );
+
+  poner(
+    "elErr",
+    n(o.error_el, 1, "°")
+  );
+
+  banda(
+    "elBanda",
+    o.error_el,
+    1.5,
+    o.fecha
+  );
+
+  // CALCULO SOLAR
+  poner(
+    "solAz",
+    n(g.az_solar, 1, "°")
+  );
+
+  poner(
+    "solEl",
+    n(g.el_solar, 1, "°")
+  );
+
+  poner(
+    "sats",
+    n(g.satelites, 0)
+  );
+
+  poner(
+    "hdop",
+    n(g.hdop, 1)
+  );
+
+  // DIAGNOSTICO
+  poner(
+    "wifi",
+    n(s.wifi, 0, " dBm")
+  );
+
+  poner(
+    "uptime",
+    n(s.minutos, 0, " min")
+  );
+
+  poner(
+    "estado",
+    s.estado === 0
+      ? "REPOSO"
+      : n(s.estado, 0)
+  );
+
+  poner(
+    "inclinacion",
+    n(o.inclinacion, 1, "°")
+  );
+
+  // GRAFICAS
+  const historial = Array.isArray(d.historial)
+    ? d.historial
+    : [];
+
+  graficar(
+    "graficaAz",
+    historial,
+    "az_actual",
+    "az_objetivo"
+  );
+
+  graficar(
+    "graficaEl",
+    historial,
+    "el_actual",
+    "el_objetivo"
+  );
+
+  // MAPA APROXIMADO
   ponerMapa(g.ubicacion);
 }
 
+// ======================================
+// ACTUALIZAR DESDE GITHUB PAGES
+// ======================================
+
 async function actualizar() {
   try {
-    const respuesta=await fetch(
-      "./data.json?v="+Date.now(),{cache:"no-store"});
-    if (!respuesta.ok) throw new Error("HTTP "+respuesta.status);
-    datos=await respuesta.json();
+    const respuesta = await fetch(
+      "./data.json?v=" + Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
+
+    if (!respuesta.ok) {
+      throw new Error(
+        "HTTP " + respuesta.status
+      );
+    }
+
+    datos = await respuesta.json();
+
     pintar(datos);
-  } catch(e) {
-    poner("conexion","No fue posible leer los datos públicos: "+e.message);
-    $("conexion").style.color="#ffc7ce";
+
+  } catch (e) {
+    poner(
+      "conexion",
+      "No fue posible leer los datos públicos: " +
+      e.message
+    );
+
+    $("conexion").style.color =
+      "#ffc7ce";
   }
 }
 
-$("reload").addEventListener("click",actualizar);
-$("periodo").addEventListener("change",()=>{
-  if(datos) pintar(datos);
-});
+// ======================================
+// CONTROLES Y REFRESCO
+// ======================================
+
+$("reload").addEventListener(
+  "click",
+  actualizar
+);
+
+$("periodo").addEventListener(
+  "change",
+  () => {
+    if (datos) pintar(datos);
+  }
+);
+
 actualizar();
-setInterval(actualizar,60000);
+
+setInterval(
+  actualizar,
+  60000
+);
+
 </script>
 </body>
 </html>
