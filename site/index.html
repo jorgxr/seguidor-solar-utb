@@ -7,15 +7,25 @@
 
 <title>Seguidor Solar UTB | Monitoreo Público</title>
 
-<!-- MAPAS LEAFLET -->
-<link rel="stylesheet"
- href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<!-- LEAFLET 1.9.4 -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+>
 
 <script
- src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin="">
 </script>
 
 <style>
+/* ========================================
+   ESTILOS GENERALES
+======================================== */
+
 * {
   box-sizing: border-box;
 }
@@ -24,7 +34,7 @@ body {
   margin: 0;
   background: #0b1424;
   color: #eef5ff;
-  font: 14px Arial, sans-serif;
+  font: 14px Arial, Helvetica, sans-serif;
 }
 
 main {
@@ -66,11 +76,14 @@ h3 {
   margin: 0 0 14px;
 }
 
-p, .muted, small {
+p,
+.muted,
+small {
   color: #9fb4d0;
 }
 
-button, select {
+button,
+select {
   padding: 11px;
   border: 1px solid #38526c;
   border-radius: 8px;
@@ -82,6 +95,14 @@ button, select {
 button {
   background: #087fb9;
 }
+
+button:hover {
+  background: #0798d2;
+}
+
+/* ========================================
+   TARJETAS Y DISTRIBUCION
+======================================== */
 
 .card {
   background: #17283e;
@@ -128,6 +149,10 @@ button {
   margin-top: 12px;
 }
 
+/* ========================================
+   ESTADOS Y COLORES
+======================================== */
+
 .good {
   background: #174b3a;
   color: #86efad;
@@ -166,6 +191,15 @@ button {
   margin-top: 12px;
 }
 
+.statusline {
+  margin: 16px 0;
+  line-height: 1.6;
+}
+
+/* ========================================
+   GRAFICAS
+======================================== */
+
 .legend {
   display: flex;
   gap: 18px;
@@ -195,34 +229,45 @@ svg {
   height: auto;
 }
 
-.statusline {
-  margin: 16px 0;
-  line-height: 1.6;
-}
-
-/* =====================================
-   MAPA DE UBICACION APROXIMADA
-===================================== */
+/* ========================================
+   MAPA GPS PUBLICO
+======================================== */
 
 .map-card {
   overflow: hidden;
 }
 
 .map-description {
-  margin-bottom: 16px;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.map-privacy {
+  display: inline-block;
+  background: #153d53;
+  color: #85d5ff;
+  padding: 8px 13px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 12px;
 }
 
 #map {
   width: 100%;
-  height: 390px;
-  border: 0;
+  height: 410px;
+  min-height: 410px;
+  border: 1px solid #54718f;
   border-radius: 10px;
-  background: #dfe7ef;
+  overflow: hidden;
+  background: #e3eaf1;
+  position: relative;
   z-index: 0;
 }
 
+/* Es importante respetar el atributo hidden */
 #map[hidden] {
-  display: none;
+  display: none !important;
 }
 
 #mapHint {
@@ -235,21 +280,14 @@ svg {
   color: #b7cde5;
 }
 
-.map-explanation {
-  margin-top: 12px;
-  font-size: 12px;
-  line-height: 1.6;
+#mapHint[hidden] {
+  display: none !important;
 }
 
-.map-privacy {
-  display: inline-block;
-  background: #153d53;
-  color: #85d5ff;
-  padding: 7px 12px;
-  border-radius: 7px;
-  font-size: 11px;
-  font-weight: bold;
-  margin-bottom: 10px;
+.map-explanation {
+  margin-top: 13px;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .map-caption {
@@ -257,9 +295,32 @@ svg {
   font-size: 12px;
 }
 
+#mapError {
+  color: #ffcd85;
+  font-size: 12px;
+  margin: 10px 0;
+}
+
+#mapError[hidden] {
+  display: none !important;
+}
+
+/* Controles del mapa por encima de las capas */
+.leaflet-container {
+  font-family: Arial, sans-serif;
+}
+
+.leaflet-control-container {
+  z-index: 1000;
+}
+
 a {
   color: #77d1ff;
 }
+
+/* ========================================
+   PIE DE PAGINA
+======================================== */
 
 footer {
   border-top: 1px solid #31445c;
@@ -269,6 +330,10 @@ footer {
   color: #8ba2bd;
   font-size: 12px;
 }
+
+/* ========================================
+   DISPOSITIVOS MOVILES
+======================================== */
 
 @media (max-width: 950px) {
   .grid {
@@ -285,7 +350,8 @@ footer {
     padding: 13px;
   }
 
-  .grid, .grid.two {
+  .grid,
+  .grid.two {
     grid-template-columns: 1fr;
   }
 
@@ -294,7 +360,8 @@ footer {
   }
 
   #map {
-    height: 330px;
+    height: 340px;
+    min-height: 340px;
   }
 }
 </style>
@@ -303,11 +370,14 @@ footer {
 <body>
 <main>
 
-<!-- ENCABEZADO -->
+<!-- =====================================
+     ENCABEZADO
+===================================== -->
+
 <header>
   <div>
     <div class="eyebrow">
-      PLATAFORMA IoT · VISTA PUBLICA
+      PLATAFORMA IoT · VISTA PÚBLICA
     </div>
 
     <h1>SEGUIDOR SOLAR UTB</h1>
@@ -319,7 +389,9 @@ footer {
   </div>
 
   <div>
-    <label for="periodo">Historial: </label>
+    <label for="periodo">
+      Historial:
+    </label>
 
     <select id="periodo">
       <option value="20">20 minutos</option>
@@ -328,11 +400,16 @@ footer {
       <option value="720">12 horas</option>
     </select>
 
-    <button id="reload">Actualizar</button>
+    <button id="reload">
+      Actualizar
+    </button>
   </div>
 </header>
 
-<!-- ESTADO DE LA TELEMETRIA -->
+<!-- =====================================
+     ESTADO DE CONEXION
+===================================== -->
+
 <div class="statusline">
   <strong id="conexion">
     Consultando telemetría...
@@ -348,10 +425,14 @@ footer {
   </div>
 </div>
 
-<!-- ESTADOS -->
+<!-- =====================================
+     ESTADOS DEL SISTEMA
+===================================== -->
+
 <h2>Estado del sistema</h2>
 
 <div class="grid three">
+
   <div class="card state">
     GPS
     <b id="gpsEstado" class="neutral">--</b>
@@ -366,9 +447,13 @@ footer {
     Datos solares
     <b id="solEstado" class="neutral">--</b>
   </div>
+
 </div>
 
-<!-- ORIENTACION -->
+<!-- =====================================
+     ORIENTACION
+===================================== -->
+
 <h2>Orientación del prototipo</h2>
 
 <div class="grid two">
@@ -427,7 +512,10 @@ footer {
 
 </div>
 
-<!-- HISTORIAL -->
+<!-- =====================================
+     GRAFICAS DE SEGUIMIENTO
+===================================== -->
+
 <h2>Historial de orientación</h2>
 
 <div class="grid two">
@@ -437,16 +525,19 @@ footer {
 
     <div class="legend">
       <span>
-        <i class="key blue"></i>Actual
+        <i class="key blue"></i>
+        Actual
       </span>
 
       <span>
-        <i class="key orange"></i>Objetivo
+        <i class="key orange"></i>
+        Objetivo
       </span>
     </div>
 
-    <svg id="graficaAz"
-         viewBox="0 0 640 240">
+    <svg
+      id="graficaAz"
+      viewBox="0 0 640 240">
     </svg>
   </div>
 
@@ -455,31 +546,40 @@ footer {
 
     <div class="legend">
       <span>
-        <i class="key blue"></i>Actual
+        <i class="key blue"></i>
+        Actual
       </span>
 
       <span>
-        <i class="key orange"></i>Objetivo
+        <i class="key orange"></i>
+        Objetivo
       </span>
     </div>
 
-    <svg id="graficaEl"
-         viewBox="0 0 640 240">
+    <svg
+      id="graficaEl"
+      viewBox="0 0 640 240">
     </svg>
   </div>
 
 </div>
 
-<!-- SOL Y GPS -->
+<!-- =====================================
+     POSICION SOLAR Y GPS
+===================================== -->
+
 <h2>Posición solar y calidad GPS</h2>
 
 <div class="grid">
+
   <div class="card">
     <span class="caption">
       Azimut solar
     </span>
 
-    <strong id="solAz" class="value">--</strong>
+    <strong
+      id="solAz"
+      class="value">--</strong>
   </div>
 
   <div class="card">
@@ -487,7 +587,9 @@ footer {
       Elevación solar
     </span>
 
-    <strong id="solEl" class="value">--</strong>
+    <strong
+      id="solEl"
+      class="value">--</strong>
   </div>
 
   <div class="card">
@@ -495,7 +597,9 @@ footer {
       Satélites GPS
     </span>
 
-    <strong id="sats" class="value">--</strong>
+    <strong
+      id="sats"
+      class="value">--</strong>
   </div>
 
   <div class="card">
@@ -503,21 +607,30 @@ footer {
       GPS HDOP
     </span>
 
-    <strong id="hdop" class="value">--</strong>
+    <strong
+      id="hdop"
+      class="value">--</strong>
   </div>
+
 </div>
 
-<!-- MAPA PUBLICO -->
+<!-- =====================================
+     MAPA DE UBICACION APROXIMADA
+===================================== -->
+
 <h2>Ubicación aproximada del dispositivo</h2>
 
 <div class="card map-card">
 
   <h3>
-    Zona general de operación del seguidor solar
+    Zona general de operación
+    del seguidor solar
   </h3>
 
-  <p class="map-description" id="zona">
-    Consultando zona aproximada...
+  <p
+    class="map-description"
+    id="zona">
+    Consultando ubicación aproximada...
   </p>
 
   <div class="map-privacy">
@@ -529,35 +642,47 @@ footer {
     de información geográfica aproximada.
   </p>
 
-  <div id="map"
-       aria-label="Mapa de ubicación aproximada"
-       hidden>
+  <!-- LEAFLET NECESITA ESTE CONTENEDOR -->
+  <div
+    id="map"
+    aria-label="Mapa de ubicación aproximada"
+    hidden>
   </div>
+
+  <p id="mapError" hidden></p>
 
   <p class="map-explanation">
     <strong>¿Qué representa el círculo azul?</strong>
-    Es una zona aproximada de 1,2 km de radio.
-    El seguidor podría encontrarse en cualquier
-    punto de esa área. El centro del círculo
-    no identifica su ubicación exacta.
+    Una zona aproximada de 1,2 km de radio.
+    El seguidor puede encontrarse en cualquier
+    punto de esta área. El centro del círculo
+    no identifica su posición GPS exacta.
   </p>
 
   <p class="map-caption">
-    Las coordenadas GPS precisas permanecen
+    Las coordenadas precisas permanecen
     exclusivamente en los canales privados
     de ThingSpeak.
   </p>
 
 </div>
 
-<!-- DIAGNOSTICO -->
+<!-- =====================================
+     DIAGNOSTICO
+===================================== -->
+
 <h2>Diagnóstico</h2>
 
 <div class="grid">
 
   <div class="card">
-    <span class="caption">Wi-Fi</span>
-    <strong id="wifi" class="value">--</strong>
+    <span class="caption">
+      Wi-Fi
+    </span>
+
+    <strong
+      id="wifi"
+      class="value">--</strong>
   </div>
 
   <div class="card">
@@ -565,7 +690,9 @@ footer {
       Tiempo encendido
     </span>
 
-    <strong id="uptime" class="value">--</strong>
+    <strong
+      id="uptime"
+      class="value">--</strong>
   </div>
 
   <div class="card">
@@ -573,7 +700,9 @@ footer {
       Estado del controlador
     </span>
 
-    <strong id="estado" class="value">--</strong>
+    <strong
+      id="estado"
+      class="value">--</strong>
   </div>
 
   <div class="card">
@@ -581,12 +710,17 @@ footer {
       Inclinación requerida
     </span>
 
-    <strong id="inclinacion" class="value">--</strong>
+    <strong
+      id="inclinacion"
+      class="value">--</strong>
   </div>
 
 </div>
 
-<!-- PIE -->
+<!-- =====================================
+     PIE DE PAGINA
+===================================== -->
+
 <footer>
   SEGUIDOR SOLAR UTB · ESP32 · GPS ·
   QMC5883P · MPU-6500 · ThingSpeak
@@ -603,9 +737,9 @@ footer {
 <script>
 "use strict";
 
-// ======================================
-// UTILIDADES
-// ======================================
+// ========================================
+// VARIABLES GENERALES
+// ========================================
 
 const $ = id => document.getElementById(id);
 
@@ -613,33 +747,54 @@ const SVG_NS =
   "http://www.w3.org/2000/svg";
 
 let datos = null;
+
 let mapaPublico = null;
 let circuloPublico = null;
 let ultimaZona = null;
 
+// ========================================
+// UTILIDADES
+// ========================================
+
 function n(v, dec = 1, unidad = "") {
-  return typeof v === "number" &&
-         Number.isFinite(v)
+  return (
+    typeof v === "number" &&
+    Number.isFinite(v)
+  )
     ? v.toFixed(dec) + unidad
     : "--";
 }
 
 function poner(id, valor) {
-  $(id).textContent = valor;
+  const el = $(id);
+
+  if (el) {
+    el.textContent = valor;
+  }
 }
 
 function reciente(fecha) {
   const t = Date.parse(fecha || "");
 
-  return Number.isFinite(t) &&
-    Date.now() - t >= -60000 &&
-    Date.now() - t < 20 * 60000;
+  if (!Number.isFinite(t)) {
+    return false;
+  }
+
+  const edad = Date.now() - t;
+
+  return edad >= -60000 &&
+         edad < 20 * 60000;
 }
 
-function hora(fecha, zona = "America/Bogota") {
+function hora(
+  fecha,
+  zona = "America/Bogota"
+) {
   const t = Date.parse(fecha);
 
-  if (!Number.isFinite(t)) return "--";
+  if (!Number.isFinite(t)) {
+    return "--";
+  }
 
   return new Intl.DateTimeFormat(
     "es-CO",
@@ -655,19 +810,28 @@ function hora(fecha, zona = "America/Bogota") {
   ).format(new Date(t));
 }
 
-// ======================================
-// ESTADOS
-// ======================================
+// ========================================
+// ESTADOS DEL SISTEMA
+// ========================================
 
 function indicador(
-  id, valor, fecha, encendido, apagado
+  id,
+  valor,
+  fecha,
+  encendido,
+  apagado
 ) {
   const e = $(id);
   const fresco = reciente(fecha);
 
   e.className = fresco
-    ? (valor === 1 ? "good" :
-       valor === 0 ? "bad" : "neutral")
+    ? (
+        valor === 1
+          ? "good"
+          : valor === 0
+            ? "bad"
+            : "neutral"
+      )
     : "neutral";
 
   e.textContent = !fresco
@@ -679,7 +843,12 @@ function indicador(
         : "SIN INFORMACIÓN";
 }
 
-function banda(id, error, limite, fecha) {
+function banda(
+  id,
+  error,
+  limite,
+  fecha
+) {
   const e = $(id);
 
   if (
@@ -691,30 +860,38 @@ function banda(id, error, limite, fecha) {
     return;
   }
 
-  const fuera = Math.abs(error) > limite;
+  const fuera =
+    Math.abs(error) > limite;
 
   e.className =
-    "band " + (fuera ? "warn" : "good");
+    "band " + (
+      fuera ? "warn" : "good"
+    );
 
   e.textContent = fuera
     ? "FUERA DE BANDA"
     : "DENTRO DE BANDA";
 }
 
-// ======================================
-// GRAFICAS SVG
-// ======================================
+// ========================================
+// FUNCIONES PARA GRAFICAS SVG
+// ========================================
 
 function svgNodo(
-  svg, tipo, atributos, texto
+  svg,
+  tipo,
+  atributos,
+  texto
 ) {
   const e = document.createElementNS(
-    SVG_NS, tipo
+    SVG_NS,
+    tipo
   );
 
-  for (const [k, v] of Object.entries(
-    atributos
-  )) {
+  for (
+    const [k, v] of
+    Object.entries(atributos)
+  ) {
     e.setAttribute(k, v);
   }
 
@@ -723,18 +900,21 @@ function svgNodo(
   }
 
   svg.appendChild(e);
+
   return e;
 }
 
 function graficar(
-  id, historial, campo1, campo2
+  id,
+  historial,
+  campo1,
+  campo2
 ) {
   const svg = $(id);
   svg.replaceChildren();
 
-  const minutos = Number(
-    $("periodo").value
-  );
+  const minutos =
+    Number($("periodo").value);
 
   const desde =
     Date.now() - minutos * 60000;
@@ -750,30 +930,37 @@ function graficar(
     }
   ];
 
-  const puntos = series.map(s =>
-    historial
+  const puntos = series.map(
+    s => historial
       .map(r => ({
         x: Date.parse(r.t),
         y: r[s.key]
       }))
-      .filter(p =>
-        Number.isFinite(p.x) &&
-        p.x >= desde &&
-        typeof p.y === "number" &&
-        Number.isFinite(p.y)
+      .filter(
+        p =>
+          Number.isFinite(p.x) &&
+          p.x >= desde &&
+          typeof p.y === "number" &&
+          Number.isFinite(p.y)
       )
   );
 
   const todos = puntos.flat();
 
   if (!todos.length) {
-    svgNodo(svg, "text", {
-      x: 320,
-      y: 125,
-      fill: "#adc1da",
-      "text-anchor": "middle",
-      "font-size": 17
-    }, "Sin datos en el período");
+    svgNodo(
+      svg,
+      "text",
+      {
+        x: 320,
+        y: 125,
+        fill: "#adc1da",
+        "text-anchor": "middle",
+        "font-size": 17
+      },
+      "Sin datos en el período"
+    );
+
     return;
   }
 
@@ -815,35 +1002,46 @@ function graficar(
     (maxY - y) /
     (maxY - minY) * 184;
 
-  // LINEAS HORIZONTALES
+  // Lineas horizontales
   for (let i = 0; i <= 4; i++) {
     const y = 15 + i * 46;
 
     const valor =
-      maxY - i * (maxY - minY) / 4;
+      maxY -
+      i * (maxY - minY) / 4;
 
-    svgNodo(svg, "line", {
-      x1: 52,
-      x2: 617,
-      y1: y,
-      y2: y,
-      stroke: "#3b536d",
-      "stroke-width": 1
-    });
+    svgNodo(
+      svg,
+      "line",
+      {
+        x1: 52,
+        x2: 617,
+        y1: y,
+        y2: y,
+        stroke: "#3b536d",
+        "stroke-width": 1
+      }
+    );
 
-    svgNodo(svg, "text", {
-      x: 45,
-      y: y + 4,
-      fill: "#b4c6df",
-      "font-size": 12,
-      "text-anchor": "end"
-    }, valor.toFixed(1) + "°");
+    svgNodo(
+      svg,
+      "text",
+      {
+        x: 45,
+        y: y + 4,
+        fill: "#b4c6df",
+        "font-size": 12,
+        "text-anchor": "end"
+      },
+      valor.toFixed(1) + "°"
+    );
   }
 
-  // EJE DE TIEMPO
+  // Etiquetas del tiempo
   for (let i = 0; i <= 4; i++) {
     const t =
-      minX + i * (maxX - minX) / 4;
+      minX +
+      i * (maxX - minX) / 4;
 
     const etiqueta =
       new Intl.DateTimeFormat(
@@ -856,16 +1054,21 @@ function graficar(
         }
       ).format(new Date(t));
 
-    svgNodo(svg, "text", {
-      x: X(t),
-      y: 228,
-      fill: "#b4c6df",
-      "font-size": 11,
-      "text-anchor": "middle"
-    }, etiqueta);
+    svgNodo(
+      svg,
+      "text",
+      {
+        x: X(t),
+        y: 228,
+        fill: "#b4c6df",
+        "font-size": 11,
+        "text-anchor": "middle"
+      },
+      etiqueta
+    );
   }
 
-  // SERIES REAL Y OBJETIVO
+  // Dibujar lineas
   puntos.forEach((serie, i) => {
     let anterior = null;
     let camino = "";
@@ -885,42 +1088,66 @@ function graficar(
       anterior = p.x;
     });
 
-    svgNodo(svg, "path", {
-      d: camino,
-      fill: "none",
-      stroke: series[i].color,
-      "stroke-width": 2.8,
-      "stroke-linejoin": "round",
-      "stroke-linecap": "round"
-    });
+    svgNodo(
+      svg,
+      "path",
+      {
+        d: camino,
+        fill: "none",
+        stroke: series[i].color,
+        "stroke-width": 2.8,
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round"
+      }
+    );
   });
 }
 
-// ======================================
-// MAPA PUBLICO CON CIRCULO
-// ======================================
+// ========================================
+// MAPA LEAFLET CORREGIDO
+// ========================================
 
 function ponerMapa(pos) {
+
+  const mapaEl = $("map");
+  const textoMapa = $("mapHint");
+  const errorMapa = $("mapError");
+
+  // Comprobar coordenadas aproximadas
   if (
     !pos ||
     typeof pos.lat !== "number" ||
     typeof pos.lon !== "number" ||
     !Number.isFinite(pos.lat) ||
-    !Number.isFinite(pos.lon)
+    !Number.isFinite(pos.lon) ||
+    pos.lat < -90 ||
+    pos.lat > 90 ||
+    pos.lon < -180 ||
+    pos.lon > 180
   ) {
     poner(
       "zona",
-      "Todavía no hay ubicación aproximada."
+      "Todavía no existe información " +
+      "geográfica aproximada válida."
     );
+
     return;
   }
 
+  // Comprobar que Leaflet se cargó
   if (typeof window.L === "undefined") {
+
     poner(
       "zona",
-      "Los datos GPS están disponibles, " +
-      "pero no se pudo cargar el mapa."
+      "La ubicación está disponible, " +
+      "pero no fue posible cargar Leaflet."
     );
+
+    errorMapa.hidden = false;
+    errorMapa.textContent =
+      "No se cargó la biblioteca del mapa. " +
+      "Comprueba la conexión y recarga la página.";
+
     return;
   }
 
@@ -934,67 +1161,109 @@ function ponerMapa(pos) {
       ? pos.radio_m
       : 1200;
 
-  const zonaActual =
-    lat + "," + lon + "," + radio;
-
   poner(
     "zona",
     "Zona aproximada de operación. " +
     "Radio de privacidad: " +
     (radio / 1000).toFixed(1) +
-    " km. La posición exacta está protegida."
+    " km. La ubicación exacta está protegida."
   );
 
-  const contenedor = $("map");
-  const indicadorMapa = $("mapHint");
+  errorMapa.hidden = true;
 
-  // MOSTRAR EL CONTENEDOR ANTES
-  // DE INICIALIZAR EL MAPA
-  contenedor.hidden = false;
-  indicadorMapa.hidden = true;
+  // PASO 1:
+  // Mostrar el contenedor antes de crear el mapa
+  mapaEl.hidden = false;
+  textoMapa.hidden = true;
 
+  const nuevaZona =
+    lat.toFixed(4) + "," +
+    lon.toFixed(4) + "," +
+    radio;
+
+  // PASO 2:
+  // Inicializar el mapa con centro y zoom
+  // ANTES de añadir las capas.
   if (mapaPublico === null) {
-    mapaPublico = L.map("map", {
-      scrollWheelZoom: false,
-      zoomControl: true
-    });
 
-    L.tileLayer(
+    mapaPublico = L.map(
+      mapaEl,
+      {
+        scrollWheelZoom: false,
+        zoomControl: true,
+        preferCanvas: false
+      }
+    ).setView(
+      [lat, lon],
+      13
+    );
+
+    // PASO 3:
+    // Cargar calles y cartografía OpenStreetMap
+    const capaCalles = L.tileLayer(
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
         maxZoom: 19,
         attribution:
           '&copy; <a href="' +
           'https://www.openstreetmap.org/copyright">' +
-          'OpenStreetMap</a>'
+          'OpenStreetMap</a> contributors'
       }
-    ).addTo(mapaPublico);
+    );
+
+    capaCalles.on(
+      "tileerror",
+      function () {
+        errorMapa.hidden = false;
+
+        errorMapa.textContent =
+          "No se pudieron descargar algunas " +
+          "imágenes del mapa. Comprueba la " +
+          "conexión o recarga la página.";
+      }
+    );
+
+    capaCalles.addTo(mapaPublico);
   }
 
+  // PASO 4:
+  // Crear el círculo azul de privacidad
   if (circuloPublico === null) {
+
     circuloPublico = L.circle(
       [lat, lon],
       {
         radius: radio,
         color: "#3288d5",
         weight: 3,
-        opacity: 0.9,
+        opacity: 0.95,
         fillColor: "#69b6ff",
-        fillOpacity: 0.28
+        fillOpacity: 0.30
       }
     ).addTo(mapaPublico);
 
     circuloPublico.bindPopup(
       "<strong>Seguidor Solar UTB</strong>" +
-      "<p>Área aproximada de ubicación.</p>" +
-      "<p>No representa la posición GPS exacta.</p>"
+      "<p>Zona aproximada de operación.</p>" +
+      "<p>No indica la posición exacta.</p>"
     );
+
   } else {
-    circuloPublico.setLatLng([lat, lon]);
-    circuloPublico.setRadius(radio);
+
+    // Actualizar sin crear un segundo mapa
+    circuloPublico.setLatLng(
+      [lat, lon]
+    );
+
+    circuloPublico.setRadius(
+      radio
+    );
   }
 
-  if (ultimaZona !== zonaActual) {
+  // PASO 5:
+  // Ajustar el zoom al círculo
+  if (ultimaZona !== nuevaZona) {
+
     mapaPublico.fitBounds(
       circuloPublico.getBounds(),
       {
@@ -1004,23 +1273,41 @@ function ponerMapa(pos) {
       }
     );
 
-    ultimaZona = zonaActual;
+    ultimaZona = nuevaZona;
   }
 
-  // CORREGIR DIMENSIONES DESPUES
-  // DE MOSTRAR EL CONTENEDOR
-  window.requestAnimationFrame(() => {
-    mapaPublico.invalidateSize({
-      pan: false
-    });
-  });
+  // PASO 6:
+  // Corregir dimensiones una vez visible.
+  // Se repite el ajuste para dar tiempo al navegador
+  // a calcular la altura del contenedor.
+  window.requestAnimationFrame(
+    function () {
+
+      mapaPublico.invalidateSize({
+        pan: false
+      });
+
+      if (ultimaZona === nuevaZona) {
+
+        mapaPublico.fitBounds(
+          circuloPublico.getBounds(),
+          {
+            padding: [35, 35],
+            maxZoom: 15,
+            animate: false
+          }
+        );
+      }
+    }
+  );
 }
 
-// ======================================
-// MOSTRAR DATOS PUBLICOS
-// ======================================
+// ========================================
+// RENDERIZAR DATOS PUBLICOS
+// ========================================
 
 function pintar(d) {
+
   if (
     !d ||
     !d.orientacion ||
@@ -1028,7 +1315,8 @@ function pintar(d) {
     !d.diagnostico
   ) {
     throw new Error(
-      "Formato de datos públicos no válido."
+      "El formato de los datos públicos " +
+      "no es válido."
     );
   }
 
@@ -1058,7 +1346,7 @@ function pintar(d) {
   $("conexion").style.color =
     ok ? "#80e9af" : "#ffd083";
 
-  // ESTADOS
+  // Estados
   indicador(
     "gpsEstado",
     g.fix,
@@ -1083,7 +1371,7 @@ function pintar(d) {
     "NO ACTUALES"
   );
 
-  // ORIENTACION
+  // Azimut
   poner(
     "az",
     n(o.az_actual, 1, "°")
@@ -1106,6 +1394,7 @@ function pintar(d) {
     o.fecha
   );
 
+  // Elevación
   poner(
     "el",
     n(o.el_actual, 1, "°")
@@ -1128,7 +1417,7 @@ function pintar(d) {
     o.fecha
   );
 
-  // CALCULO SOLAR
+  // Posición solar
   poner(
     "solAz",
     n(g.az_solar, 1, "°")
@@ -1139,6 +1428,7 @@ function pintar(d) {
     n(g.el_solar, 1, "°")
   );
 
+  // GPS
   poner(
     "sats",
     n(g.satelites, 0)
@@ -1149,7 +1439,7 @@ function pintar(d) {
     n(g.hdop, 1)
   );
 
-  // DIAGNOSTICO
+  // Diagnóstico
   poner(
     "wifi",
     n(s.wifi, 0, " dBm")
@@ -1172,10 +1462,11 @@ function pintar(d) {
     n(o.inclinacion, 1, "°")
   );
 
-  // GRAFICAS
-  const historial = Array.isArray(d.historial)
-    ? d.historial
-    : [];
+  // Historial
+  const historial =
+    Array.isArray(d.historial)
+      ? d.historial
+      : [];
 
   graficar(
     "graficaAz",
@@ -1191,16 +1482,20 @@ function pintar(d) {
     "el_objetivo"
   );
 
-  // MAPA APROXIMADO
-  ponerMapa(g.ubicacion);
+  // Ubicación aproximada
+  ponerMapa(
+    g.ubicacion
+  );
 }
 
-// ======================================
-// ACTUALIZAR DESDE GITHUB PAGES
-// ======================================
+// ========================================
+// CONSULTA DE TELEMETRIA PUBLICA
+// ========================================
 
 async function actualizar() {
+
   try {
+
     const respuesta = await fetch(
       "./data.json?v=" + Date.now(),
       {
@@ -1219,6 +1514,7 @@ async function actualizar() {
     pintar(datos);
 
   } catch (e) {
+
     poner(
       "conexion",
       "No fue posible leer los datos públicos: " +
@@ -1230,9 +1526,9 @@ async function actualizar() {
   }
 }
 
-// ======================================
-// CONTROLES Y REFRESCO
-// ======================================
+// ========================================
+// EVENTOS Y ACTUALIZACION AUTOMATICA
+// ========================================
 
 $("reload").addEventListener(
   "click",
@@ -1241,8 +1537,10 @@ $("reload").addEventListener(
 
 $("periodo").addEventListener(
   "change",
-  () => {
-    if (datos) pintar(datos);
+  function () {
+    if (datos) {
+      pintar(datos);
+    }
   }
 );
 
@@ -1252,11 +1550,6 @@ setInterval(
   actualizar,
   60000
 );
-
-</script>
-</body>
-</html>
-
 
 </script>
 </body>
