@@ -127,8 +127,12 @@ def construir_historial(registros):
     ]
 
 
+
 def ubicacion_aproximada(registros):
-    """Redondeo espacial: aproximadamente 10 km."""
+    """
+    Ubicación aproximada para la web pública.
+    Nunca publica las coordenadas GPS completas.
+    """
     for registro in reversed(registros):
         lat = campo(registro, 4, 7)
         lon = campo(registro, 5, 7)
@@ -141,14 +145,17 @@ def ubicacion_aproximada(registros):
             and not (lat == 0 and lon == 0)
         ):
             return {
-                "lat": round(lat, 1),
-                "lon": round(lon, 1)
+                "lat": round(lat, 2),
+                "lon": round(lon, 2),
+                "radio_m": 1200
             }
 
     return {
         "lat": None,
-        "lon": None
+        "lon": None,
+        "radio_m": 1200
     }
+
 
 
 def main():
