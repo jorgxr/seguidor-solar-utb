@@ -1,7 +1,6 @@
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
@@ -9,7 +8,7 @@
 
 <title>Seguidor Solar UTB | Monitoreo Público</title>
 
-<!-- LEAFLET -->
+<!-- LEAFLET / OPENSTREETMAP -->
 <link rel="stylesheet"
  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
@@ -18,9 +17,9 @@
 </script>
 
 <style>
-/* ====================================
+/* ========================================
    ESTILO GENERAL
-==================================== */
+======================================== */
 
 * {
   box-sizing: border-box;
@@ -30,7 +29,7 @@ body {
   margin: 0;
   background: #0b1424;
   color: #eef5ff;
-  font: 14px Arial, sans-serif;
+  font: 14px Arial, Helvetica, sans-serif;
 }
 
 main {
@@ -93,9 +92,9 @@ button:hover {
   background: #0798d2;
 }
 
-/* ====================================
-   TARJETAS
-==================================== */
+/* ========================================
+   TARJETAS Y DISTRIBUCION
+======================================== */
 
 .card {
   background: #17283e;
@@ -127,6 +126,7 @@ button:hover {
   font-size: 30px;
   font-weight: bold;
   margin: 10px 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .caption {
@@ -145,9 +145,9 @@ button:hover {
   margin-top: 12px;
 }
 
-/* ====================================
-   COLORES
-==================================== */
+/* ========================================
+   ESTADOS Y BANDAS
+======================================== */
 
 .good {
   background: #174b3a;
@@ -192,15 +192,45 @@ button:hover {
   line-height: 1.6;
 }
 
-/* ====================================
+/* ========================================
+   NUEVO: FECHA Y HORA
+======================================== */
+
+.time-card {
+  padding: 20px;
+}
+
+.time-card strong {
+  display: block;
+  color: #ffffff;
+  font-size: 23px;
+  margin: 12px 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-card small {
+  display: block;
+  color: #97afca;
+  font-size: 12px;
+}
+
+.time-description {
+  color: #8fa9c6;
+  font-size: 12px;
+  margin: 12px 0;
+}
+
+/* ========================================
    GRAFICAS
-==================================== */
+======================================== */
 
 .legend {
   display: flex;
+  flex-wrap: wrap;
   gap: 18px;
   font-size: 12px;
   margin-bottom: 10px;
+  color: #c4d4e8;
 }
 
 .key {
@@ -219,18 +249,92 @@ button:hover {
   background: #ffa83e;
 }
 
-/* No alterar los SVG internos de Leaflet */
+.purple {
+  background: #a18cff;
+}
+
+/* Solo se modifican los SVG de gráficas.
+   Los SVG internos de Leaflet quedan intactos. */
 
 #graficaAz,
-#graficaEl {
+#graficaEl,
+#graficaUV {
   display: block;
   width: 100%;
   height: auto;
 }
 
-/* ====================================
+.chart-card h3 {
+  margin-bottom: 12px;
+}
+
+/* ========================================
+   NUEVO: LTR390
+======================================== */
+
+.uv-card {
+  background: #192b45;
+  border-color: #405075;
+}
+
+.uv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.uv-tag {
+  color: #b0d9ff;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.uv-value {
+  display: block;
+  margin: 15px 0 4px;
+  color: #ffffff;
+  font-size: 39px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.uv-unit {
+  display: block;
+  color: #b8aaff;
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 11px;
+}
+
+.uv-note {
+  display: block;
+  color: #a4b8d1;
+  font-size: 12px;
+}
+
+.uv-chart {
+  margin-top: 14px;
+  border-color: #405075;
+}
+
+.uv-chart-description {
+  font-size: 12px;
+  color: #aec1db;
+  margin: 7px 0 15px;
+}
+
+.uv-disclaimer {
+  color: #8fa5c2;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+/* ========================================
    MAPA PUBLICO
-==================================== */
+   SE CONSERVA EL DISEÑO ANTERIOR
+======================================== */
 
 .map-description {
   line-height: 1.6;
@@ -293,9 +397,9 @@ button:hover {
   font-family: Arial, sans-serif;
 }
 
-/* ====================================
+/* ========================================
    PIE DE PAGINA
-==================================== */
+======================================== */
 
 footer {
   border-top: 1px solid #31445c;
@@ -306,12 +410,11 @@ footer {
   font-size: 12px;
 }
 
-/* ====================================
-   DISPOSITIVOS MOVILES
-==================================== */
+/* ========================================
+   DISEÑO ADAPTABLE
+======================================== */
 
 @media (max-width: 950px) {
-
   .grid {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
@@ -323,7 +426,6 @@ footer {
 }
 
 @media (max-width: 620px) {
-
   main {
     padding: 13px;
   }
@@ -337,18 +439,27 @@ footer {
     font-size: 24px;
   }
 
+  .time-card strong {
+    font-size: 19px;
+  }
+
+  .uv-value {
+    font-size: 33px;
+  }
+
   #map {
     height: 340px;
   }
 }
 </style>
-
 </head>
 
 <body>
 <main>
 
-<!-- ENCABEZADO -->
+<!-- =====================================
+     ENCABEZADO
+===================================== -->
 
 <header>
   <div>
@@ -365,7 +476,9 @@ footer {
   </div>
 
   <div>
-    <label for="periodo">Historial:</label>
+    <label for="periodo">
+      Historial:
+    </label>
 
     <select id="periodo">
       <option value="20">20 minutos</option>
@@ -380,29 +493,70 @@ footer {
   </div>
 </header>
 
-<!-- CONEXION -->
+<!-- =====================================
+     ESTADO DE CONEXION
+===================================== -->
 
 <div class="statusline">
-
   <strong id="conexion">
     Consultando telemetría...
   </strong>
 
   <div class="muted" id="fecha">
-    Última publicación: --
+    Último registro: --
   </div>
 
-  <div class="muted">
-    Actualización pública programada
-    aproximadamente cada 5 minutos.
+  <div class="muted" id="actualizacionSitio">
+    Actualización pública: --
   </div>
 </div>
 
-<!-- ESTADOS -->
+<!-- =====================================
+     NUEVO: HORA UTC Y COLOMBIANA
+===================================== -->
+
+<section class="grid two">
+
+  <article class="card time-card">
+    <span class="caption">
+      Último registro - UTC
+    </span>
+
+    <strong id="horaUTC">--</strong>
+
+    <small>
+      Recepción de telemetría en ThingSpeak
+    </small>
+  </article>
+
+  <article class="card time-card">
+    <span class="caption">
+      Último registro - Colombia
+    </span>
+
+    <strong id="horaCOL">--</strong>
+
+    <small>
+      Hora local · UTC−5 · Formato 24 horas
+    </small>
+  </article>
+
+</section>
+
+<p class="time-description">
+  Estas horas corresponden al registro más
+  reciente recibido por ThingSpeak, no al
+  reloj GPS exacto. La publicación en GitHub
+  Pages puede tener algunos minutos de retraso.
+</p>
+
+<!-- =====================================
+     ESTADOS DEL SISTEMA
+===================================== -->
 
 <h2>Estado del sistema</h2>
 
-<div class="grid three">
+<section class="grid three">
 
   <div class="card state">
     GPS
@@ -419,16 +573,17 @@ footer {
     <b id="solEstado" class="neutral">--</b>
   </div>
 
-</div>
+</section>
 
-<!-- ORIENTACION -->
+<!-- =====================================
+     ORIENTACION
+===================================== -->
 
 <h2>Orientación del prototipo</h2>
 
-<div class="grid two">
+<section class="grid two">
 
-  <div class="card">
-
+  <article class="card">
     <span class="caption">
       AZIMUT ACTUAL
     </span>
@@ -450,10 +605,9 @@ footer {
     </span>
 
     <small>Umbral: 2,5°</small>
-  </div>
+  </article>
 
-  <div class="card">
-
+  <article class="card">
     <span class="caption">
       ELEVACIÓN ACTUAL
     </span>
@@ -475,17 +629,19 @@ footer {
     </span>
 
     <small>Umbral: 1,5°</small>
-  </div>
+  </article>
 
-</div>
+</section>
 
-<!-- GRAFICAS -->
+<!-- =====================================
+     GRAFICAS DE ORIENTACION
+===================================== -->
 
 <h2>Historial de orientación</h2>
 
-<div class="grid two">
+<section class="grid two">
 
-  <div class="card">
+  <article class="card chart-card">
     <h3>Seguimiento de azimut</h3>
 
     <div class="legend">
@@ -498,13 +654,14 @@ footer {
       </span>
     </div>
 
-    <svg
-      id="graficaAz"
-      viewBox="0 0 640 240">
+    <svg id="graficaAz"
+         viewBox="0 0 640 240"
+         role="img"
+         aria-label="Azimut actual y objetivo">
     </svg>
-  </div>
+  </article>
 
-  <div class="card">
+  <article class="card chart-card">
     <h3>Seguimiento de elevación</h3>
 
     <div class="legend">
@@ -517,47 +674,167 @@ footer {
       </span>
     </div>
 
-    <svg
-      id="graficaEl"
-      viewBox="0 0 640 240">
+    <svg id="graficaEl"
+         viewBox="0 0 640 240"
+         role="img"
+         aria-label="Elevación actual y objetivo">
     </svg>
-  </div>
+  </article>
 
-</div>
+</section>
 
-<!-- POSICION SOLAR -->
+<!-- =====================================
+     POSICION SOLAR Y GPS
+===================================== -->
 
 <h2>Posición solar y calidad GPS</h2>
 
-<div class="grid">
+<section class="grid">
 
-  <div class="card">
-    <span class="caption">Azimut solar</span>
+  <article class="card">
+    <span class="caption">
+      Azimut solar
+    </span>
+
     <strong id="solAz" class="value">--</strong>
-  </div>
+  </article>
 
-  <div class="card">
-    <span class="caption">Elevación solar</span>
+  <article class="card">
+    <span class="caption">
+      Elevación solar
+    </span>
+
     <strong id="solEl" class="value">--</strong>
-  </div>
+  </article>
 
-  <div class="card">
-    <span class="caption">Satélites GPS</span>
+  <article class="card">
+    <span class="caption">
+      Satélites GPS
+    </span>
+
     <strong id="sats" class="value">--</strong>
-  </div>
+  </article>
 
-  <div class="card">
-    <span class="caption">GPS HDOP</span>
+  <article class="card">
+    <span class="caption">
+      GPS HDOP
+    </span>
+
     <strong id="hdop" class="value">--</strong>
+  </article>
+
+</section>
+
+<!-- =====================================
+     NUEVO: LTR390
+===================================== -->
+
+<h2>Radiación ultravioleta · LTR390</h2>
+
+<section class="grid two">
+
+  <!-- FIELD 5 -->
+  <article class="card uv-card">
+
+    <div class="uv-top">
+      <span class="caption">
+        Irradiancia UV estimada
+      </span>
+
+      <span class="uv-tag">
+        LTR390
+      </span>
+    </div>
+
+    <strong id="uvEstimada"
+            class="uv-value">
+      --
+    </strong>
+
+    <span class="uv-unit">
+      W/m²
+    </span>
+
+    <small id="uvEstado" class="uv-note">
+      Esperando lectura de ThingSpeak
+    </small>
+
+  </article>
+
+  <!-- FIELD 6 -->
+  <article class="card uv-card">
+
+    <div class="uv-top">
+      <span class="caption">
+        UVS promedio
+      </span>
+
+      <span class="uv-tag">
+        LTR390
+      </span>
+    </div>
+
+    <strong id="uvsPromedio"
+            class="uv-value">
+      --
+    </strong>
+
+    <span class="uv-unit">
+      Cuentas
+    </span>
+
+    <small id="uvsEstado" class="uv-note">
+      Esperando lectura de ThingSpeak
+    </small>
+
+  </article>
+
+</section>
+
+<!-- GRAFICA DE IRRADIANCIA UV -->
+
+<article class="card chart-card uv-chart">
+
+  <h3>
+    Evolución de irradiancia UV estimada
+  </h3>
+
+  <p class="uv-chart-description">
+    Promedio de irradiancia UV estimada
+    transmitido cada minuto · Diagnóstico,
+    Field 5
+  </p>
+
+  <div class="legend">
+    <span>
+      <i class="key purple"></i>
+      UV estimada (W/m²)
+    </span>
   </div>
 
-</div>
+  <svg id="graficaUV"
+       viewBox="0 0 640 240"
+       role="img"
+       aria-label="Evolución histórica de irradiancia UV estimada">
+  </svg>
 
-<!-- MAPA -->
+</article>
+
+<p class="uv-disclaimer">
+  La irradiancia UV se calcula mediante el
+  factor experimental configurado en el firmware.
+  No representa irradiancia solar total ni una
+  medición radiométrica certificada.
+</p>
+
+<!-- =====================================
+     MAPA GPS APROXIMADO
+     CONSERVADO CON RADIO DE 300 M
+===================================== -->
 
 <h2>Ubicación aproximada del dispositivo</h2>
 
-<div class="card">
+<article class="card">
 
   <h3>
     Zona general de operación
@@ -596,47 +873,54 @@ footer {
     exclusivamente en ThingSpeak privado.
   </p>
 
-</div>
+</article>
 
-<!-- DIAGNOSTICO -->
+<!-- =====================================
+     DIAGNOSTICO
+===================================== -->
 
 <h2>Diagnóstico</h2>
 
-<div class="grid">
+<section class="grid">
 
-  <div class="card">
+  <article class="card">
     <span class="caption">Wi-Fi</span>
     <strong id="wifi" class="value">--</strong>
-  </div>
+  </article>
 
-  <div class="card">
-    <span class="caption">Tiempo encendido</span>
+  <article class="card">
+    <span class="caption">
+      Tiempo encendido
+    </span>
+
     <strong id="uptime" class="value">--</strong>
-  </div>
+  </article>
 
-  <div class="card">
+  <article class="card">
     <span class="caption">
       Estado del controlador
     </span>
 
     <strong id="estado" class="value">--</strong>
-  </div>
+  </article>
 
-  <div class="card">
+  <article class="card">
     <span class="caption">
       Inclinación requerida
     </span>
 
     <strong id="inclinacion" class="value">--</strong>
-  </div>
+  </article>
 
-</div>
+</section>
 
-<!-- PIE -->
+<!-- =====================================
+     PIE
+===================================== -->
 
 <footer>
   SEGUIDOR SOLAR UTB · ESP32 · GPS ·
-  QMC5883P · MPU-6500 · ThingSpeak
+  QMC5883P · MPU-6500 · LTR390 · ThingSpeak
 
   <p>
     Visualización pública de solo lectura.
@@ -650,9 +934,9 @@ footer {
 <script>
 "use strict";
 
-// ====================================
+// ========================================
 // VARIABLES GENERALES
-// ====================================
+// ========================================
 
 const $ = id => document.getElementById(id);
 
@@ -664,17 +948,14 @@ let mapa = null;
 let circulo = null;
 let ultimaZona = "";
 
-// Zoom fijo: permite apreciar el tamaño
-// real de los círculos de 300 y 500 metros.
 const ZOOM_INICIAL_MAPA = 15;
 
 
-// ====================================
+// ========================================
 // UTILIDADES
-// ====================================
+// ========================================
 
 function numero(v, dec = 1, unidad = "") {
-
   if (
     typeof v !== "number" ||
     !Number.isFinite(v)
@@ -685,9 +966,7 @@ function numero(v, dec = 1, unidad = "") {
   return v.toFixed(dec) + unidad;
 }
 
-
 function poner(id, valor) {
-
   const e = $(id);
 
   if (e) {
@@ -695,9 +974,7 @@ function poner(id, valor) {
   }
 }
 
-
 function reciente(fecha) {
-
   const t = Date.parse(fecha || "");
 
   if (!Number.isFinite(t)) {
@@ -710,33 +987,122 @@ function reciente(fecha) {
          edad < 20 * 60000;
 }
 
-
 function hora(fecha) {
-
   const t = Date.parse(fecha || "");
 
   if (!Number.isFinite(t)) {
     return "--";
   }
 
+  return formatearFecha(
+    fecha,
+    "America/Bogota",
+    false
+  );
+}
+
+// ========================================
+// NUEVO: FECHAS UTC Y COLOMBIA
+// ========================================
+
+function formatearFecha(
+  fecha,
+  zona,
+  segundos = true
+) {
+  const t = Date.parse(fecha || "");
+
+  if (!Number.isFinite(t)) {
+    return "--";
+  }
+
+  const opciones = {
+    timeZone: zona,
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23"
+  };
+
+  if (segundos) {
+    opciones.second = "2-digit";
+  }
+
   return new Intl.DateTimeFormat(
     "es-CO",
-    {
-      timeZone: "America/Bogota",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23"
-    }
+    opciones
   ).format(new Date(t));
 }
 
+function edadTexto(fecha) {
+  const t = Date.parse(fecha || "");
 
-// ====================================
-// ESTADOS Y BANDAS MUERTAS
-// ====================================
+  if (!Number.isFinite(t)) {
+    return "sin fecha disponible";
+  }
+
+  const segundos = Math.max(
+    0,
+    Math.floor(
+      (Date.now() - t) / 1000
+    )
+  );
+
+  if (segundos < 60) {
+    return "hace " + segundos + " s";
+  }
+
+  if (segundos < 3600) {
+    return "hace " +
+      Math.floor(segundos / 60) +
+      " min";
+  }
+
+  return "hace " +
+    (segundos / 3600).toFixed(1) +
+    " h";
+}
+
+function mostrarFechas(d) {
+  const ultima = d.ultimo_registro_utc;
+
+  poner(
+    "horaUTC",
+    formatearFecha(ultima, "UTC")
+  );
+
+  poner(
+    "horaCOL",
+    formatearFecha(
+      ultima,
+      "America/Bogota"
+    )
+  );
+
+  poner(
+    "fecha",
+    "Último registro recibido en ThingSpeak: " +
+    edadTexto(ultima)
+  );
+
+  poner(
+    "actualizacionSitio",
+    "Sitio actualizado: " +
+    formatearFecha(
+      d.publicado_utc,
+      "America/Bogota",
+      true
+    ) +
+    " (Colombia)"
+  );
+}
+
+
+// ========================================
+// INDICADORES
+// ========================================
 
 function indicador(
   id,
@@ -745,7 +1111,6 @@ function indicador(
   activo,
   inactivo
 ) {
-
   const e = $(id);
 
   if (!reciente(fecha)) {
@@ -768,9 +1133,7 @@ function indicador(
   }
 }
 
-
 function banda(id, error, limite, fecha) {
-
   const e = $(id);
 
   if (
@@ -793,14 +1156,19 @@ function banda(id, error, limite, fecha) {
 }
 
 
-// ====================================
+// ========================================
 // GRAFICAS SVG
-// ====================================
+// ========================================
 
-function svgNodo(svg, tipo, attrs, texto) {
-
+function svgNodo(
+  svg,
+  tipo,
+  attrs,
+  texto
+) {
   const e = document.createElementNS(
-    SVG_NS, tipo
+    SVG_NS,
+    tipo
   );
 
   for (const [k, v] of Object.entries(attrs)) {
@@ -812,8 +1180,36 @@ function svgNodo(svg, tipo, attrs, texto) {
   }
 
   svg.appendChild(e);
+
+  return e;
 }
 
+function graficaVacia(svg, mensaje) {
+  svgNodo(svg, "text", {
+    x: 320,
+    y: 125,
+    fill: "#adc1da",
+    "text-anchor": "middle",
+    "font-size": 17
+  }, mensaje);
+}
+
+function etiquetaHora(timestamp) {
+  return new Intl.DateTimeFormat(
+    "es-CO",
+    {
+      timeZone: "America/Bogota",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }
+  ).format(new Date(timestamp));
+}
+
+
+// ========================================
+// GRAFICAS ANGULARES
+// ========================================
 
 function graficar(
   id,
@@ -821,7 +1217,6 @@ function graficar(
   campo1,
   campo2
 ) {
-
   const svg = $(id);
   svg.replaceChildren();
 
@@ -853,15 +1248,10 @@ function graficar(
   const todos = puntos.flat();
 
   if (!todos.length) {
-
-    svgNodo(svg, "text", {
-      x: 320,
-      y: 125,
-      fill: "#adc1da",
-      "text-anchor": "middle",
-      "font-size": 17
-    }, "Sin datos para este período");
-
+    graficaVacia(
+      svg,
+      "Sin datos para este período"
+    );
     return;
   }
 
@@ -903,11 +1293,11 @@ function graficar(
 
   // Cuadrícula horizontal
   for (let i = 0; i <= 4; i++) {
-
     const y = 15 + i * 46;
 
     const valor =
-      maxY - i * (maxY - minY) / 4;
+      maxY -
+      i * (maxY - minY) / 4;
 
     svgNodo(svg, "line", {
       x1: 52,
@@ -927,22 +1317,11 @@ function graficar(
     }, valor.toFixed(1) + "°");
   }
 
-  // Etiquetas horarias
+  // Eje horario
   for (let i = 0; i <= 4; i++) {
-
     const t =
-      minX + i * (maxX - minX) / 4;
-
-    const etiqueta =
-      new Intl.DateTimeFormat(
-        "es-CO",
-        {
-          timeZone: "America/Bogota",
-          hour: "2-digit",
-          minute: "2-digit",
-          hourCycle: "h23"
-        }
-      ).format(new Date(t));
+      minX +
+      i * (maxX - minX) / 4;
 
     svgNodo(svg, "text", {
       x: X(t),
@@ -950,17 +1329,15 @@ function graficar(
       fill: "#b4c6df",
       "font-size": 11,
       "text-anchor": "middle"
-    }, etiqueta);
+    }, etiquetaHora(t));
   }
 
-  // Líneas actual y objetivo
+  // Curvas actual y objetivo
   puntos.forEach((serie, i) => {
-
     let camino = "";
     let anterior = null;
 
     serie.forEach(p => {
-
       const salto =
         anterior === null ||
         p.x - anterior > 12 * 60000;
@@ -985,12 +1362,169 @@ function graficar(
 }
 
 
-// ====================================
+// ========================================
+// NUEVO: HISTORIAL LTR390
+// ========================================
+
+function graficarUV(historial) {
+  const svg = $("graficaUV");
+
+  svg.replaceChildren();
+
+  const minutos =
+    Number($("periodo").value);
+
+  const desde =
+    Date.now() - minutos * 60000;
+
+  const puntos = historial
+    .map(r => ({
+      x: Date.parse(r.t),
+      y: r.uv
+    }))
+    .filter(p =>
+      Number.isFinite(p.x) &&
+      p.x >= desde &&
+      typeof p.y === "number" &&
+      Number.isFinite(p.y) &&
+      p.y >= 0
+    )
+    .sort((a, b) => a.x - b.x);
+
+  if (!puntos.length) {
+    graficaVacia(
+      svg,
+      "Sin lecturas UV en este período"
+    );
+    return;
+  }
+
+  let minX = puntos[0].x;
+
+  let maxX = puntos[
+    puntos.length - 1
+  ].x;
+
+  if (minX === maxX) {
+    minX -= 30000;
+    maxX += 30000;
+  }
+
+  const maxUV = Math.max(
+    ...puntos.map(p => p.y)
+  );
+
+  const minY = 0;
+
+  const maxY = Math.max(
+    0.001,
+    maxUV * 1.15
+  );
+
+  const X = x =>
+    65 + (x - minX) /
+    (maxX - minX) * 550;
+
+  const Y = y =>
+    15 + (maxY - y) /
+    (maxY - minY) * 184;
+
+  // Eje Y en W/m²
+  for (let i = 0; i <= 4; i++) {
+    const y = 15 + i * 46;
+
+    const valor =
+      maxY -
+      i * (maxY - minY) / 4;
+
+    svgNodo(svg, "line", {
+      x1: 65,
+      x2: 615,
+      y1: y,
+      y2: y,
+      stroke: "#3b536d",
+      "stroke-width": 1
+    });
+
+    svgNodo(svg, "text", {
+      x: 57,
+      y: y + 4,
+      fill: "#b9aaff",
+      "font-size": 12,
+      "text-anchor": "end"
+    }, valor.toFixed(
+      maxY >= 1 ? 2 : 3
+    ));
+  }
+
+  // Eje de tiempo Colombia
+  for (let i = 0; i <= 4; i++) {
+    const t =
+      minX +
+      i * (maxX - minX) / 4;
+
+    svgNodo(svg, "text", {
+      x: X(t),
+      y: 228,
+      fill: "#b4c6df",
+      "font-size": 11,
+      "text-anchor": "middle"
+    }, etiquetaHora(t));
+  }
+
+  // Curva UV
+  let camino = "";
+  let anterior = null;
+
+  puntos.forEach(p => {
+    const salto =
+      anterior === null ||
+      p.x - anterior > 180000;
+
+    camino +=
+      (salto ? "M" : "L") +
+      X(p.x).toFixed(2) + "," +
+      Y(p.y).toFixed(2) + " ";
+
+    anterior = p.x;
+  });
+
+  svgNodo(svg, "path", {
+    d: camino,
+    fill: "none",
+    stroke: "#a18cff",
+    "stroke-width": 3,
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round"
+  });
+
+  // Puntos individuales para rangos cortos
+  if (puntos.length <= 120) {
+    puntos.forEach(p => {
+      svgNodo(svg, "circle", {
+        cx: X(p.x),
+        cy: Y(p.y),
+        r: 2.5,
+        fill: "#b5a7ff"
+      });
+    });
+  }
+
+  svgNodo(svg, "text", {
+    x: 12,
+    y: 12,
+    fill: "#b9aaff",
+    "font-size": 12
+  }, "W/m²");
+}
+
+
+// ========================================
 // MAPA GPS APROXIMADO
-// ====================================
+// MISMA LOGICA QUE YA FUNCIONA
+// ========================================
 
 function ponerMapa(pos) {
-
   const contenedor = $("map");
   const aviso = $("mapHint");
   const error = $("mapError");
@@ -1001,8 +1535,10 @@ function ponerMapa(pos) {
     typeof pos.lon !== "number" ||
     !Number.isFinite(pos.lat) ||
     !Number.isFinite(pos.lon) ||
-    pos.lat < -90 || pos.lat > 90 ||
-    pos.lon < -180 || pos.lon > 180
+    pos.lat < -90 ||
+    pos.lat > 90 ||
+    pos.lon < -180 ||
+    pos.lon > 180
   ) {
     poner(
       "zona",
@@ -1012,12 +1548,9 @@ function ponerMapa(pos) {
   }
 
   if (typeof window.L === "undefined") {
-
     error.hidden = false;
-
     error.textContent =
       "No se pudo cargar la biblioteca Leaflet.";
-
     return;
   }
 
@@ -1031,7 +1564,6 @@ function ponerMapa(pos) {
       ? pos.radio_m
       : 300;
 
-  // Mostrar automáticamente el radio real
   const textoRadio = radio >= 1000
     ? (radio / 1000).toFixed(1) + " km"
     : radio.toFixed(0) + " metros";
@@ -1053,13 +1585,12 @@ function ponerMapa(pos) {
     "posición GPS exacta del seguidor."
   );
 
-  // Mostrar el contenedor del mapa
+  // Mostrar mapa
   contenedor.hidden = false;
   aviso.hidden = true;
 
   // Crear mapa una sola vez
   if (mapa === null) {
-
     mapa = L.map("map", {
       scrollWheelZoom: false,
       zoomControl: true,
@@ -1069,7 +1600,7 @@ function ponerMapa(pos) {
       ZOOM_INICIAL_MAPA
     );
 
-    // Capa de calles OpenStreetMap
+    // Calles OpenStreetMap
     L.tileLayer(
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
@@ -1082,9 +1613,8 @@ function ponerMapa(pos) {
     ).addTo(mapa);
   }
 
-  // Crear o actualizar el círculo
+  // Crear o actualizar círculo
   if (circulo === null) {
-
     circulo = L.circle(
       [lat, lon],
       {
@@ -1105,19 +1635,16 @@ function ponerMapa(pos) {
     );
 
   } else {
-
     circulo.setLatLng([lat, lon]);
     circulo.setRadius(radio);
   }
 
-  // Recentrar solo si cambian los datos
   const zonaActual =
     lat.toFixed(5) + "," +
     lon.toFixed(5) + "," +
     radio;
 
   if (ultimaZona !== zonaActual) {
-
     mapa.setView(
       [lat, lon],
       ZOOM_INICIAL_MAPA,
@@ -1127,9 +1654,7 @@ function ponerMapa(pos) {
     ultimaZona = zonaActual;
   }
 
-  // Corregir dimensiones del mapa
   requestAnimationFrame(() => {
-
     mapa.invalidateSize({
       pan: false
     });
@@ -1139,12 +1664,74 @@ function ponerMapa(pos) {
 }
 
 
-// ====================================
-// MOSTRAR DATOS PUBLICOS
-// ====================================
+// ========================================
+// MOSTRAR LTR390
+// ========================================
+
+function pintarLTR(s, historialUV) {
+  const valido =
+    reciente(s.fecha) &&
+    s.ltr_valido === 1;
+
+  if (
+    valido &&
+    typeof s.uv_estimada === "number" &&
+    Number.isFinite(s.uv_estimada)
+  ) {
+    poner(
+      "uvEstimada",
+      numero(s.uv_estimada, 3)
+    );
+
+    poner(
+      "uvEstado",
+      "Lectura reciente · Field 5"
+    );
+
+  } else {
+    poner("uvEstimada", "--");
+    poner(
+      "uvEstado",
+      "Sin lectura UV reciente"
+    );
+  }
+
+  if (
+    valido &&
+    typeof s.uvs_promedio === "number" &&
+    Number.isFinite(s.uvs_promedio)
+  ) {
+    poner(
+      "uvsPromedio",
+      numero(s.uvs_promedio, 2)
+    );
+
+    poner(
+      "uvsEstado",
+      "Lectura reciente · Field 6"
+    );
+
+  } else {
+    poner("uvsPromedio", "--");
+    poner(
+      "uvsEstado",
+      "Sin lectura UVS reciente"
+    );
+  }
+
+  graficarUV(
+    Array.isArray(historialUV)
+      ? historialUV
+      : []
+  );
+}
+
+
+// ========================================
+// MOSTRAR LOS DATOS
+// ========================================
 
 function pintar(d) {
-
   if (
     !d ||
     !d.orientacion ||
@@ -1160,13 +1747,10 @@ function pintar(d) {
   const g = d.gps;
   const s = d.diagnostico;
 
-  poner(
-    "fecha",
-    "Última publicación del sitio: " +
-    hora(d.publicado_utc) +
-    " (Colombia)"
-  );
+  // Nuevas tarjetas de fecha y hora
+  mostrarFechas(d);
 
+  // Estado general
   const actual =
     reciente(o.fecha) &&
     reciente(g.fecha) &&
@@ -1181,31 +1765,6 @@ function pintar(d) {
 
   $("conexion").style.color =
     actual ? "#80e9af" : "#ffd083";
-
-  // Estados
-  indicador(
-    "gpsEstado",
-    g.fix,
-    g.fecha,
-    "GPS VÁLIDO",
-    "SIN FIX"
-  );
-
-  indicador(
-    "segEstado",
-    o.seguimiento,
-    o.fecha,
-    "HABILITADO",
-    "DESACTIVADO"
-  );
-
-  indicador(
-    "solEstado",
-    s.sol_actual,
-    s.fecha,
-    "DATOS ACTUALES",
-    "NO ACTUALES"
-  );
 
   // Azimut
   poner(
@@ -1253,6 +1812,31 @@ function pintar(d) {
     o.fecha
   );
 
+  // Estados
+  indicador(
+    "gpsEstado",
+    g.fix,
+    g.fecha,
+    "GPS VÁLIDO",
+    "SIN FIX"
+  );
+
+  indicador(
+    "segEstado",
+    o.seguimiento,
+    o.fecha,
+    "HABILITADO",
+    "DESACTIVADO"
+  );
+
+  indicador(
+    "solEstado",
+    s.sol_actual,
+    s.fecha,
+    "DATOS ACTUALES",
+    "NO ACTUALES"
+  );
+
   // Posición solar
   poner(
     "solAz",
@@ -1298,7 +1882,7 @@ function pintar(d) {
     numero(o.inclinacion, 1, "°")
   );
 
-  // Gráficas históricas
+  // Historial de orientación
   const historial =
     Array.isArray(d.historial)
       ? d.historial
@@ -1318,19 +1902,23 @@ function pintar(d) {
     "el_objetivo"
   );
 
-  // Ubicación aproximada
+  // Nuevos datos UV
+  pintarLTR(
+    s,
+    d.historial_uv
+  );
+
+  // Mapa GPS conservado
   ponerMapa(g.ubicacion);
 }
 
 
-// ====================================
-// ACTUALIZACION DE DATOS
-// ====================================
+// ========================================
+// CONSULTAR DATA.JSON
+// ========================================
 
 async function actualizar() {
-
   try {
-
     const respuesta = await fetch(
       "./data.json?v=" + Date.now(),
       {
@@ -1352,7 +1940,6 @@ async function actualizar() {
     datos = nuevosDatos;
 
   } catch (error) {
-
     poner(
       "conexion",
       "No fue posible cargar los datos: " +
@@ -1365,9 +1952,9 @@ async function actualizar() {
 }
 
 
-// ====================================
+// ========================================
 // CONTROLES Y REFRESCO
-// ====================================
+// ========================================
 
 $("reload").addEventListener(
   "click",
@@ -1386,8 +1973,9 @@ $("periodo").addEventListener(
 // Primera carga
 actualizar();
 
-// Consulta cada minuto.
-// GitHub Actions renueva los datos
+// Consultar nueva versión del JSON
+// cada 60 segundos.
+// GitHub Actions suele publicar
 // aproximadamente cada cinco minutos.
 setInterval(
   actualizar,
