@@ -30,29 +30,11 @@ CANALES = {
 
 
 # =========================================
-# PRIVACIDAD DE LA UBICACION PUBLICA
+# PRIVACIDAD DEL MAPA GPS
+# SE CONSERVA RADIO DE 300 METROS
 # =========================================
 
-# RADIO CONFIGURABLE DEL CIRCULO PUBLICO
-# 300 = 300 metros
-# 500 = 500 metros
-# 1200 = 1.2 kilometros
-
 RADIO_PUBLICO_METROS = 300
-
-# La cuadricula de aproximacion se ajusta
-# automaticamente al radio escogido.
-# Su lado sera de aproximadamente 300 m.
-#
-# La distancia maxima entre el punto GPS
-# real y el centro de la celda sera
-# aproximadamente 212 m para un radio de
-# 300 m, en la zona de Cartagena.
-#
-# Asi evitamos publicar el punto preciso
-# y mantenemos el dispositivo dentro
-# del circulo de privacidad.
-
 LADO_CELDA_METROS = RADIO_PUBLICO_METROS
 
 
@@ -92,7 +74,7 @@ def obtener_datos(nombre):
 
     if not registros:
         raise RuntimeError(
-            f"No hay datos del canal {canal_id}"
+            f"Sin datos del canal {canal_id}"
         )
 
     return registros
@@ -121,12 +103,12 @@ def numero(valor, decimales=1):
 
 def entero(valor):
 
-    valor_numerico = numero(valor, 0)
+    resultado = numero(valor, 0)
 
-    if valor_numerico is None:
+    if resultado is None:
         return None
 
-    return int(valor_numerico)
+    return int(resultado)
 
 
 def campo(registro, indice, decimales=1):
@@ -142,10 +124,17 @@ def ultimo(registros):
 
 
 # =========================================
-# FECHAS PUBLICAS
+# FECHAS
 # =========================================
 
 def fecha_publica(fecha):
+    """
+    Agrupa las marcas temporales del
+    historial angular en intervalos
+    de cinco minutos.
+
+    Se conserva la funcionalidad anterior.
+    """
 
     instante = datetime.fromisoformat(
         fecha.replace("Z", "+00:00")
@@ -164,8 +153,49 @@ def fecha_publica(fecha):
     )
 
 
+def fecha_exacta_utc(fecha):
+    """
+    Mantiene segundos reales de registro
+    de ThingSpeak.
+
+    No se utiliza para divulgar
+    coordenadas GPS.
+    """
+
+    instante = datetime.fromisoformat(
+        fecha.replace("Z", "+00:00")
+    ).astimezone(timezone.utc)
+
+    return instante.isoformat().replace(
+        "+00:00", "Z"
+    )
+
+
+def ultimo_registro_thingspeak(*registros):
+    """
+    Obtiene la fecha mas reciente entre
+    los tres canales.
+
+    Corresponde a recepcion en ThingSpeak,
+    no al reloj GPS del dispositivo.
+    """
+
+    fechas = [
+        datetime.fromisoformat(
+            r["created_at"].replace(
+                "Z", "+00:00"
+            )
+        ).astimezone(timezone.utc)
+        for r in registros
+    ]
+
+    return max(fechas).isoformat().replace(
+        "+00:00", "Z"
+    )
+
+
 # =========================================
-# HISTORIAL PUBLICO DE ORIENTACION
+# HISTORIAL DE ORIENTACION
 # =========================================
 
 def construir_historial(registros):
@@ -180,22 +210,10 @@ def construir_historial(registros):
 
         agrupados[fecha] = {
             "t": fecha,
-
-            "az_actual": campo(
-                registro, 1
-            ),
-
-            "az_objetivo": campo(
-                registro, 2
-            ),
-
-            "el_actual": campo(
-                registro, 4
-            ),
-
-            "el_objetivo": campo(
-                registro, 5
-            )
+            "az_actual": campo(registro, 1),
+            "az_objetivo": campo(registro, 2),
+            "el_actual": campo(registro, 4),
+            "el_objetivo": campo(registro, 5)
         }
 
     return [
@@ -205,19 +223,54 @@ def construir_historial(registros):
 
 
 # =========================================
-# GENERALIZACION GPS
+# NUEVO HISTORIAL DE LTR390
+# FIELD 5 - IRRADIANCIA UV ESTIMADA
+# =========================================
+
+def construir_historial_uv(registros):
+    """
+    Conserva una muestra por publicacion
+    valida, aproximadamente cada minuto.
+
+    Publica exclusivamente:
+    - Fecha de registro
+    - Irradiancia UV estimada
+
+    No expone los otros campos privados
+    del canal Diagnostico.
+    """
+
+    historial = []
+
+    for registro in registros:
+
+        uv = campo(registro, 5, 3)
+
+        if uv is None or uv < 0:
+            continue
+
+        historial.append({
+            "t": fecha_exacta_utc(
+                registro["created_at"]
+            ),
+            "uv": uv
+        })
+
+    return historial
+
+
+# =========================================
+# GPS GENERALIZADO
+# MISMA LOGICA Y MISMO RADIO
 # =========================================
 
 def centro_aproximado(latitud, longitud):
     """
-    Convierte la ubicacion GPS en el centro
-    de una celda aproximada.
+    Centro aproximado de una celda
+    geográfica de unos 300 metros.
 
-    La celda cambia de tamaño cuando
-    modificamos RADIO_PUBLICO_METROS.
-
-    Nunca devuelve directamente la
-    coordenada original del receptor.
+    No devuelve las coordenadas GPS
+    originales del ESP32.
     """
 
     metros_por_grado = 111320.0
@@ -256,8 +309,7 @@ def ubicacion_aproximada(registros):
     Field 5 = longitud GPS
     Field 6 = GPS fix
 
-    Busca la ultima lectura valida y
-    publica solamente la zona aproximada.
+    Nunca publica el punto exacto.
     """
 
     for registro in reversed(registros):
@@ -322,23 +374,25 @@ def main():
     g = ultimo(gps)
     d = ultimo(diagnostico)
 
-    # Se publican solo campos autorizados.
-    #
-    # NO se publica:
-    # - GPS preciso
-    # - API Keys
-    # - Credenciales MQTT
-    # - Registros completos privados
-
     publico = {
 
+        # Fecha del proceso de GitHub Actions
         "publicado_utc": datetime.now(
             timezone.utc
         ).replace(
             microsecond=0
         ).isoformat(),
 
+        # Nueva fecha exacta del ultimo
+        # registro recibido en ThingSpeak
+        "ultimo_registro_utc":
+            ultimo_registro_thingspeak(
+                o, g, d
+            ),
+
+        # ==================================
         # ORIENTACION
+        # ==================================
 
         "orientacion": {
 
@@ -361,7 +415,9 @@ def main():
             )
         },
 
-        # GPS Y CALCULO SOLAR
+        # ==================================
+        # GPS Y POSICION SOLAR
+        # ==================================
 
         "gps": {
 
@@ -383,12 +439,15 @@ def main():
 
             "hdop": campo(g, 8),
 
+            # Solamente coordenadas filtradas
             "ubicacion": ubicacion_aproximada(
                 gps
             )
         },
 
-        # DIAGNOSTICO
+        # ==================================
+        # DIAGNOSTICO + LTR390
+        # ==================================
 
         "diagnostico": {
 
@@ -410,17 +469,47 @@ def main():
 
             "minutos": entero(
                 d.get("field4")
+            ),
+
+            # NUEVO: LTR390
+            # Field 5: UV estimada W/m2
+            "uv_estimada": campo(
+                d, 5, 3
+            ),
+
+            # Field 6: promedio cuentas UVS
+            "uvs_promedio": campo(
+                d, 6, 2
+            ),
+
+            # Field 7: estado de lecturas
+            "ltr_valido": entero(
+                d.get("field7")
             )
+
+            # Field 8 no se hace publico.
         },
 
-        # HISTORIAL DE LOS EJES
+        # ==================================
+        # HISTORIAL ANGULAR
+        # ==================================
 
         "historial": construir_historial(
             orientacion
+        ),
+
+        # ==================================
+        # NUEVO HISTORIAL UV
+        # ==================================
+
+        "historial_uv": construir_historial_uv(
+            diagnostico
         )
     }
 
-    # GUARDAR SOLO LOS DATOS FILTRADOS
+    # =====================================
+    # GUARDAR JSON PUBLICO
+    # =====================================
 
     destino = Path("site/data.json")
 
@@ -438,19 +527,31 @@ def main():
         encoding="utf-8"
     )
 
-    print("Telemetria publica preparada.")
+    print("Dashboard publico actualizado.")
     print(
-        "Radio de privacidad:",
+        "Ultimo registro ThingSpeak:",
+        publico["ultimo_registro_utc"]
+    )
+    print(
+        "Registros de orientacion:",
+        len(publico["historial"])
+    )
+    print(
+        "Registros UV:",
+        len(publico["historial_uv"])
+    )
+    print(
+        "Radio GPS publico:",
         RADIO_PUBLICO_METROS,
         "metros"
     )
     print(
-        "Registros historicos:",
-        len(publico["historial"])
+        "Coordenadas exactas GPS:",
+        "NO PUBLICADAS"
     )
     print(
-        "Coordenadas GPS exactas: "
-        "NO PUBLICADAS"
+        "Field 8 comandos remotos:",
+        "NO PUBLICADO"
     )
 
 
