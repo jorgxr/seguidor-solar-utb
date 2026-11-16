@@ -116,6 +116,10 @@ button:disabled {
   grid-template-columns: repeat(3,minmax(0,1fr));
 }
 
+.grid.five {
+  grid-template-columns: repeat(5,minmax(0,1fr));
+}
+
 .value {
   display: block;
   font-size: 30px;
@@ -378,7 +382,8 @@ footer {
 /* PANTALLAS PEQUENAS */
 
 @media (max-width: 950px) {
-  .grid {
+  .grid,
+  .grid.five {
     grid-template-columns: repeat(2,minmax(0,1fr));
   }
 
@@ -393,7 +398,8 @@ footer {
   }
 
   .grid,
-  .grid.two {
+  .grid.two,
+  .grid.five {
     grid-template-columns: 1fr;
   }
 
@@ -634,7 +640,7 @@ footer {
 
 <h2>Posición solar y calidad GPS</h2>
 
-<section class="grid">
+<section class="grid five">
 
   <article class="card">
     <span class="caption">Azimut solar</span>
@@ -644,6 +650,11 @@ footer {
   <article class="card">
     <span class="caption">Elevación solar</span>
     <strong id="solEl" class="value">--</strong>
+  </article>
+
+  <article class="card">
+    <span class="caption">Inclinación requerida</span>
+    <strong id="inclinacion" class="value">--</strong>
   </article>
 
   <article class="card">
@@ -785,7 +796,7 @@ footer {
 
 <h2>Diagnóstico</h2>
 
-<section class="grid">
+<section class="grid three">
 
   <article class="card">
     <span class="caption">Wi-Fi</span>
@@ -808,14 +819,6 @@ footer {
     <strong id="estado" class="value">--</strong>
   </article>
 
-  <article class="card">
-    <span class="caption">
-      Inclinación requerida
-    </span>
-
-    <strong id="inclinacion"
-            class="value">--</strong>
-  </article>
 
 </section>
 
